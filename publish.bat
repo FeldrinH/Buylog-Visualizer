@@ -1,3 +1,3 @@
-dir /b logs > loglist.csv
+updateloglist.bat
 surge
 pause

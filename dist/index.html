@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>GMod Buylog Visualizer</title>
+        <link rel="stylesheet" type="text/css" href="charts.css">
+        <script src='main.js' type="module"></script>
+    </head>
+    <body>
+        <select id="logselect"></select>
+        <input type="number" id="start"></input>
+        <input type="number" id="end"></input>
+        <button id="updatebutton">Update</button>
+
+        <div id="main"></div>
+
+        <template id="maintemplate">
+            <div id="statechart" class="widechart"></div>
+            <div id="matchups"></div>
+            <div id="teamtimes" class="widechart"></div>
+        </template>
+        
+        <template id="radartemplate">
+            <div class="matchupradar"></div>
+        </template>
+    </body>
+</html>

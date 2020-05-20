@@ -1,0 +1,1 @@
+dir /b logs > dist/loglist.txt

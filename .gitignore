@@ -1,1 +1,2 @@
-logs
+dist/logs
+node_modules
