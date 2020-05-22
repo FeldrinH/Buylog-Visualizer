@@ -1,3 +1,0 @@
-updateloglist.bat
-surge
-pause

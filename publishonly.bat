@@ -1,3 +1,3 @@
 call updateloglist.bat
-python -m SimpleHTTPServer
+call surge ./dist
 pause

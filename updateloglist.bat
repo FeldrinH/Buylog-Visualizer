@@ -1,1 +1,1 @@
-dir /b logs > dist/loglist.txt
+dir /b dist\logs > dist\loglist.txt

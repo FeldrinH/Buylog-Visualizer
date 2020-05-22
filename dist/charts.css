@@ -6,3 +6,14 @@
     width: 80vw;
     margin: auto;
 }
+
+.multichartbox {
+    display: flex;
+    justify-content: center;
+    flex-flow: row wrap;
+    margin: 0 20px;
+}
+
+.matchupradar {
+    width: 400px;
+}

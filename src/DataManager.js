@@ -93,6 +93,7 @@ export default class DataManager {
                 name: team,
                 data: Helpers.teamTimes(this.log, team)
             })),
+            colors: ['#ff0000', '#0000ff'],
             /*series: this.playerlist.map(player => ({
                 name: player,
                 data: Helpers.countMovingAverage(this.filteredlog, player, this.getValidStart(), this.getValidEnd(), 600, 60)
@@ -151,10 +152,14 @@ export default class DataManager {
         const matchups = document.querySelector("#matchups")
         const radartemplate = document.querySelector("#radartemplate")
         this.playerlist.forEach(player => {
+            const matchupsinfo = Helpers.calculateMatchupsInfo(this.filteredlog, player)
             options = {
                 series: [{
                     name: 'Win %',
-                    data: Helpers.generateMatchupRadar(this.filteredlog, player)
+                    data: matchupsinfo.map(info => ({
+                        x: info.opponent,
+                        y: info.percent
+                    }))
                 }],
                 chart: {
                     height: 350,

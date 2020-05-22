@@ -48,7 +48,7 @@ export function stateTimeline(players) {
     return ret
 }
 
-export function generateMatchupRadar(eventlist, player) {
+export function calculateMatchupsInfo(eventlist, player) {
     const data = []
     const matches = new Map()
     for (const e of eventlist) {
@@ -61,9 +61,10 @@ export function generateMatchupRadar(eventlist, player) {
         }
     }
 
-    return matches.map((key, value) => ({
-        x: key,
-        y: Math.round(value.wins / value.total * 1000) / 10,
-        info: value
-    }))
+    return matches.map((player, value) => ({
+        opponent: player,
+        wins: value.wins,
+        losses: value.total - value.wins,
+        percent: Math.round(value.wins / value.total * 1000) / 10,
+    })).sort((a,b) => a.opponent.localeCompare(b.opponent))
 }
