@@ -1,9 +1,10 @@
 import { parse } from 'csv-es'
 import ApexCharts from 'apexcharts'
+import * as Util from './util'
 import * as Parser from './parser'
-import * as Helpers from './charthelpers'
+import * as Helper from './processhelper'
 
-export default class DataManager {
+export default class ChartManager {
     constructor() {
         this.needsReload = true
         this.needsUpdate = true
@@ -104,6 +105,8 @@ export default class DataManager {
     }
 
     renderCharts() {
+        const weaponPaletteGenerator = Util.getLoopingPaletteGenerator()
+
         Apex.chart = {
             toolbar: {
                 show: false
@@ -115,7 +118,7 @@ export default class DataManager {
     
         let options = {
             series: [{
-                data: Helpers.stateTimeline(this.players)
+                data: Helper.stateTimeline(this.players)
             }],
             chart: {
                 height: 300,
@@ -181,10 +184,12 @@ export default class DataManager {
         const buybreakdowns = document.querySelector("#buybreakdown")
         const pietemplate = document.querySelector("#pietemplate")
         this.playerlist.forEach(player => {
-            const wepCounts = Helpers.weaponCounts(this.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
+            const wepCounts = Helper.weaponCounts(this.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
+            console.log(wepCounts)
             options = {
                 series: wepCounts.map(info => info.count),
                 labels: wepCounts.map(info => info.weapon),
+                colors: wepCounts.map(info => weaponPaletteGenerator(info.weapon)),
                 chart: {
                     height: 350,
                     type: 'pie'
@@ -196,10 +201,8 @@ export default class DataManager {
                 legend: {
                     show: false
                 },
-                yaxis: {
-                    tickAmount: 4,
-                    min: 0,
-                    max: 100
+                stroke: {
+                    width: 0.5
                 }
             }
     
@@ -214,7 +217,7 @@ export default class DataManager {
             options = {
                 series: [{
                     name: 'Win %',
-                    data: Helpers.calculateMatchupsInfo(this.filteredlog, player).map(info => ({
+                    data: Helper.calculateMatchupsInfo(this.filteredlog, player).map(info => ({
                         x: info.opponent,
                         y: info.percent
                     }))
@@ -242,7 +245,7 @@ export default class DataManager {
         options = {
             series: ['Red', 'Blue'].map(team => ({
                 name: team,
-                data: Helpers.teamTimes(this.log, team)
+                data: Helper.teamTimes(this.log, team)
             })),
             colors: ['#ff0000', '#0000ff'],
             /*series: this.playerlist.map(player => ({

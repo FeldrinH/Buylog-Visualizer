@@ -1,3 +1,5 @@
+import palette from './palette.js'
+
 Map.prototype.map = function(func) {
     const ret = []
     this.forEach((value, key) => {
@@ -11,6 +13,10 @@ Map.prototype.getset = function(key, defaultval) {
         this.set(key, defaultval)
     }
     return this.get(key)
+}
+
+export function mod(n, m) {
+    return ((n % m) + m) % m
 }
 
 export function findFirstMatching(iterlist, start, step, filter, inLimit) {
@@ -50,4 +56,19 @@ export function findInRange(iterlist, start, end, isbackwards, filter) {
         }
     }
     return null
+}
+
+export function getLoopingPaletteGenerator() {
+    const cache = new Map()
+    let index = 0
+    return (str) => {
+        let ret = cache.get(str)
+        if (ret) {
+            return ret
+        }
+        ret = palette[index % palette.length]
+        cache.set(str, ret)
+        index += 1
+        return ret
+    }
 }

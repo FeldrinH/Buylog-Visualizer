@@ -1,5 +1,7 @@
-import * as Util from './util.js'
+import * as Util from './util'
+import * as Info from './metainfo'
 import Counter from './Counter'
+import MultiCounter from './MultiCounter'
 
 export function eventPoints(eventlist, player) {
     const ret = []
@@ -24,13 +26,10 @@ export function weaponCounts(eventlist, player, eventtypes) {
         }
     }
 
-    console.log(counts)
-
     return counts.map((weapon, value) => ({
         weapon: weapon,
-        count: value.get('')
-        /*percent: Math.round(value.total / counts.total * 1000) / 10*/
-    }))
+        count: value
+    })).sort((a,b) => a.weapon.localeCompare(b.weapon))
 }
 
 export function countMovingAverage(eventlist, player, start, end, duration, step) {
@@ -83,7 +82,7 @@ export function stateTimeline(players) {
 
 export function calculateMatchupsInfo(eventlist, player) {
     const data = []
-    const matches = new Counter()
+    const matches = new MultiCounter()
     for (const e of eventlist) {
         if (e.type === 'kill' && (e.player === player || e.victim === player)) {
             const ourwin = e.player === player
