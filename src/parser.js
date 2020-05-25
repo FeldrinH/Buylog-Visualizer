@@ -1,4 +1,5 @@
 import * as Util from './util'
+import playerinfo from './playerinfo.js'
 
 function ParseKill(event) {
     if (event[1] !== 'kill') { return null }
@@ -70,7 +71,7 @@ function ParseCity(event) {
             player: event[3],
             teamtime: event[4]
         }
-    } else if (event[1] === 'city-lose') {
+    } else if (event[1] === 'city-lose' || event[1] === 'city-reset') {
         return {
             time: event[0],
             type: event[1],
@@ -162,6 +163,9 @@ export function parse(rawlog, data) {
     data.playerlist = Array.from(data.players.keys())
     data.players.forEach((info, id) => {
         info.stateblocks = generateStateBlocks(data.log, id)
+    })
+    data.players.forEach((info, id) => {
+        info.color = (playerinfo[id] || {}).color || '#' + Math.random().toString(16).substr(2,6)
     })
     data.players.forEach((info, id) => {
         addKillCount(data.log, id)

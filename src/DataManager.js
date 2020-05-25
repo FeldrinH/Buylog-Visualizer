@@ -12,6 +12,7 @@ export default class DataManager {
         this.filename = this.params.get("log")
         this.start = parseFloat(this.params.get("start"))
         this.end = parseFloat(this.params.get("end"))
+        this.metaString = this.params.get("meta")
         this.update()
     }
 
@@ -37,6 +38,27 @@ export default class DataManager {
             this.needsUpdate = true
         }   
     }
+    setMeta(metaString) {
+        if (metaString !== this.metaString) {
+            this.metaString = metaString
+            this.params.set("meta", metaString)
+            this.needsUpdate = true
+        }   
+    }
+
+    parseMeta(metaString) {
+        const ret = {}
+        if (metaString) {
+            metaString.split(',').forEach(pair => {
+                let [key, value] = pair.split(':', 2)
+                if (Number.isFinite(Number(value))) {
+                    value = Number(value)
+                }
+                ret[key] = value
+            })
+        }
+        return ret
+    }
 
     getValidStart() {
         return isFinite(this.start) ? this.start : this.logstart
@@ -48,6 +70,9 @@ export default class DataManager {
     async update() {
         if (this.needsReload || this.needsUpdate) {
             window.history.pushState(`${this.filename} [${this.start};${this.end}]`, null, `?${this.params.toString()}`)
+
+            this.meta = this.parseMeta(this.metaString)
+            console.log(this.meta)
 
             if (this.needsReload) {
                 await this.loadData()
@@ -86,41 +111,9 @@ export default class DataManager {
             zoom: {
                 enabled: false
             }
-        }
-
-        let options = {
-            series: ['Red', 'Blue'].map(team => ({
-                name: team,
-                data: Helpers.teamTimes(this.log, team)
-            })),
-            colors: ['#ff0000', '#0000ff'],
-            /*series: this.playerlist.map(player => ({
-                name: player,
-                data: Helpers.countMovingAverage(this.filteredlog, player, this.getValidStart(), this.getValidEnd(), 600, 60)
-            })),*/
-            chart: {
-                height: 900,
-                type: 'line'
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                curve: 'straight'
-            },
-            title: {
-                text: 'Team time',
-                align: 'left'
-            },
-            xaxis: {
-                type: 'numeric',
-                min: this.getValidStart(),
-                max: this.getValidEnd()
-            }
-        };
-        new ApexCharts(document.querySelector("#teamtimes"), options).render();
+        }    
     
-        options = {
+        let options = {
             series: [{
                 data: Helpers.stateTimeline(this.players)
             }],
@@ -149,14 +142,79 @@ export default class DataManager {
         };
         new ApexCharts(document.querySelector("#statechart"), options).render();
 
+        /*options = {
+            series: this.playerlist.map(player => ({
+                name: player,
+                data: Helpers.eventPoints(this.filteredlog, player)
+            })),
+            colors: this.playerlist.map(player => {
+                console.log(player, this.players[player])
+                return this.players.get(player).color
+            }),
+            chart: {
+                height: 900,
+                type: 'scatter',
+                animations: {
+                    enabled: false,
+                    dynamicAnimation: {
+                        enabled: false
+                    }
+                }
+            },
+            markers: {
+                size: 5
+            },
+            tooltip: {
+            },
+            title: {
+                text: 'Buy and kill events',
+                align: 'left'
+            },
+            xaxis: {
+                type: 'numeric',
+                min: this.getValidStart(),
+                max: this.getValidEnd()
+            }
+        };
+        new ApexCharts(document.querySelector("#eventline"), options).render();*/
+
+        const buybreakdowns = document.querySelector("#buybreakdown")
+        const pietemplate = document.querySelector("#pietemplate")
+        this.playerlist.forEach(player => {
+            const wepCounts = Helpers.weaponCounts(this.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
+            options = {
+                series: wepCounts.map(info => info.count),
+                labels: wepCounts.map(info => info.weapon),
+                chart: {
+                    height: 350,
+                    type: 'pie'
+                },
+                title: {
+                    text: player,
+                    align: 'center'
+                },
+                legend: {
+                    show: false
+                },
+                yaxis: {
+                    tickAmount: 4,
+                    min: 0,
+                    max: 100
+                }
+            }
+    
+            const pieobj = pietemplate.content.firstElementChild.cloneNode(true)
+            buybreakdowns.appendChild(pieobj)
+            new ApexCharts(pieobj, options).render();
+        })
+
         const matchups = document.querySelector("#matchups")
         const radartemplate = document.querySelector("#radartemplate")
         this.playerlist.forEach(player => {
-            const matchupsinfo = Helpers.calculateMatchupsInfo(this.filteredlog, player)
             options = {
                 series: [{
                     name: 'Win %',
-                    data: matchupsinfo.map(info => ({
+                    data: Helpers.calculateMatchupsInfo(this.filteredlog, player).map(info => ({
                         x: info.opponent,
                         y: info.percent
                     }))
@@ -180,6 +238,44 @@ export default class DataManager {
             matchups.appendChild(radarobj)
             new ApexCharts(radarobj, options).render();
         })
+
+        options = {
+            series: ['Red', 'Blue'].map(team => ({
+                name: team,
+                data: Helpers.teamTimes(this.log, team)
+            })),
+            colors: ['#ff0000', '#0000ff'],
+            /*series: this.playerlist.map(player => ({
+                name: player,
+                data: Helpers.countMovingAverage(this.filteredlog, player, this.getValidStart(), this.getValidEnd(), 600, 60)
+            })),*/
+            chart: {
+                height: 900,
+                type: 'line'
+            },
+            stroke: {
+                curve: 'straight',
+                width: 3
+            },
+            title: {
+                text: 'Team time',
+                align: 'left'
+            },
+            annotations: {
+                yaxis: [{
+                    y: this.meta.cityend || 0,
+                    borderWidth: 1.5,
+                    strokeDashArray: [5,2],
+                    borderColor: '#00cc00'
+                }]
+            },
+            xaxis: {
+                type: 'numeric',
+                min: this.getValidStart(),
+                max: this.getValidEnd()
+            }
+        };
+        new ApexCharts(document.querySelector("#teamtimes"), options).render();
     }
 
     clearCharts() {

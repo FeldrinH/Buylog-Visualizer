@@ -5,21 +5,30 @@
         <script src='main.js' type="module"></script>
     </head>
     <body>
-        <select id="logselect"></select>
-        <input type="number" id="start"></input>
-        <input type="number" id="end"></input>
-        <button id="updatebutton">Update</button>
+        <div id="controlinputs">
+            <select id="logselect"></select>
+            <input type="number" id="start"></input>
+            <input type="number" id="end"></input>
+            <input type="text" id="meta"></input>
+            <button id="updatebutton">Update</button>
+        </div>
 
         <div id="main"></div>
 
         <template id="maintemplate">
             <div id="statechart" class="widechart"></div>
+            <div id="eventline" class="widechart"></div>
+            <div id="buybreakdown" class="multichartbox"></div>
             <div id="matchups" class="multichartbox"></div>
             <div id="teamtimes" class="widechart"></div>
         </template>
         
         <template id="radartemplate">
             <div class="matchupradar"></div>
+        </template>
+
+        <template id="pietemplate">
+            <div class="piechart"></div>
         </template>
     </body>
 </html>

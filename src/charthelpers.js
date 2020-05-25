@@ -1,4 +1,37 @@
 import * as Util from './util.js'
+import Counter from './Counter'
+
+export function eventPoints(eventlist, player) {
+    const ret = []
+    for (const e of eventlist) {
+        if (e.player === player && ((e.category === 'buy' && e.type !== 'buy-ammo') || e.category === 'kill')) {
+            ret.push({
+                x: e.time,
+                y: Math.abs(e.deltamoney),
+                event: e
+            })
+        }
+    }
+    return ret
+}
+
+export function weaponCounts(eventlist, player, eventtypes) {
+    const counts = new Counter()
+    for (const e of eventlist) {
+        if (e.player === player && eventtypes.has(e.type)) {
+            const weapon = e.weapon || e.class
+            counts.increment(weapon)
+        }
+    }
+
+    console.log(counts)
+
+    return counts.map((weapon, value) => ({
+        weapon: weapon,
+        count: value.get('')
+        /*percent: Math.round(value.total / counts.total * 1000) / 10*/
+    }))
+}
 
 export function countMovingAverage(eventlist, player, start, end, duration, step) {
     const filter = x => x.player === player && x.type === 'kill'
@@ -50,21 +83,20 @@ export function stateTimeline(players) {
 
 export function calculateMatchupsInfo(eventlist, player) {
     const data = []
-    const matches = new Map()
+    const matches = new Counter()
     for (const e of eventlist) {
         if (e.type === 'kill' && (e.player === player || e.victim === player)) {
             const ourwin = e.player === player
             const opponent = ourwin ? e.victim : e.player
-            const hist = matches.getset(opponent, { wins: 0, total: 0 })
-            hist.wins += ourwin ? 1 : 0
-            hist.total += 1
+            matches.increment(opponent, 'wins', ourwin ? 1 : 0)
+            matches.increment(opponent, 'total')
         }
     }
 
     return matches.map((player, value) => ({
         opponent: player,
-        wins: value.wins,
-        losses: value.total - value.wins,
-        percent: Math.round(value.wins / value.total * 1000) / 10,
+        wins: value.get('wins'),
+        losses: value.get('total') - value.get('wins'),
+        percent: Math.round(value.get('wins') / value.get('total') * 1000) / 10,
     })).sort((a,b) => a.opponent.localeCompare(b.opponent))
 }
