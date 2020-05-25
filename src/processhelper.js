@@ -3,7 +3,25 @@ import * as Info from './metainfo'
 import Counter from './Counter'
 import MultiCounter from './MultiCounter'
 
-export function eventPoints(eventlist, player) {
+export function stateTimelineSeries(players) {
+    const ret = []
+    players.forEach((info, player) => {
+        info.stateblocks.forEach(({start, end, state}) => {
+            ret.push({
+                x: player,
+                y: [
+                    start,
+                    end
+                ],
+                fillColor: state === 'afk' ? '#aaaaff' : '#0000ff',
+                state: state
+            })
+        })
+    })
+    return ret
+}
+
+export function eventPointSeries(eventlist, player) {
     const ret = []
     for (const e of eventlist) {
         if (e.player === player && ((e.category === 'buy' && e.type !== 'buy-ammo') || e.category === 'kill')) {
@@ -11,6 +29,36 @@ export function eventPoints(eventlist, player) {
                 x: e.time,
                 y: Math.abs(e.deltamoney),
                 event: e
+            })
+        }
+    }
+    return ret
+}
+
+export function cityTimeSeries(eventlist, team) {
+    const ret = []
+    for (const e of eventlist) {
+        if (e.category === 'city' && e.team === team) {
+            ret.push({
+                x: e.time,
+                y: e.teamtime,
+                event: e
+            })
+        }
+    }
+    return ret
+}
+
+export function eventCountMovingAverageSeries(eventlist, player, start, end, duration, step) {
+    const filter = x => x.player === player && x.type === 'kill'
+    const ret = []
+    for (let j = start; j <= end; j += step) {
+        const start = Util.findInRange(eventlist, j - duration, j, false, filter)
+        const end = Util.findInRange(eventlist, j - duration, j, true, filter)
+        if (start) {
+            ret.push({
+                x: j,
+                y: Math.round((end.killcount - start.killcount) / duration * 6000) / 100
             })
         }
     }
@@ -32,55 +80,7 @@ export function weaponCounts(eventlist, player, eventtypes) {
     })).sort((a,b) => a.weapon.localeCompare(b.weapon))
 }
 
-export function countMovingAverage(eventlist, player, start, end, duration, step) {
-    const filter = x => x.player === player && x.type === 'kill'
-    const ret = []
-    for (let j = start; j <= end; j += step) {
-        const start = Util.findInRange(eventlist, j - duration, j, false, filter)
-        const end = Util.findInRange(eventlist, j - duration, j, true, filter)
-        if (start) {
-            ret.push({
-                x: j,
-                y: Math.round((end.killcount - start.killcount) / duration * 6000) / 100
-            })
-        }
-    }
-    return ret
-}
-
-export function teamTimes(eventlist, team) {
-    const ret = []
-    for (const e of eventlist) {
-        if (e.category === 'city' && e.team === team) {
-            ret.push({
-                x: e.time,
-                y: e.teamtime,
-                event: e
-            })
-        }
-    }
-    return ret
-}
-
-export function stateTimeline(players) {
-    const ret = []
-    players.forEach((info, player) => {
-        info.stateblocks.forEach(({start, end, state}) => {
-            ret.push({
-                x: player,
-                y: [
-                    start,
-                    end
-                ],
-                fillColor: state === 'afk' ? '#aaaaff' : '#0000ff',
-                state: state
-            })
-        })
-    })
-    return ret
-}
-
-export function calculateMatchupsInfo(eventlist, player) {
+export function conflictBreakdown(eventlist, player) {
     const data = []
     const matches = new MultiCounter()
     for (const e of eventlist) {

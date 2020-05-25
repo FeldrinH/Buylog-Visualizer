@@ -118,7 +118,7 @@ export default class ChartManager {
     
         let options = {
             series: [{
-                data: Helper.stateTimeline(this.players)
+                data: Helper.stateTimelineSeries(this.players)
             }],
             chart: {
                 height: 300,
@@ -217,7 +217,7 @@ export default class ChartManager {
             options = {
                 series: [{
                     name: 'Win %',
-                    data: Helper.calculateMatchupsInfo(this.filteredlog, player).map(info => ({
+                    data: Helper.conflictBreakdown(this.filteredlog, player).map(info => ({
                         x: info.opponent,
                         y: info.percent
                     }))
@@ -245,7 +245,7 @@ export default class ChartManager {
         options = {
             series: ['Red', 'Blue'].map(team => ({
                 name: team,
-                data: Helper.teamTimes(this.log, team)
+                data: Helper.cityTimeSeries(this.log, team)
             })),
             colors: ['#ff0000', '#0000ff'],
             /*series: this.playerlist.map(player => ({
