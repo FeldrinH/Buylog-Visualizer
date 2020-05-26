@@ -1,5 +1,5 @@
 import { parse } from 'csv-es';
-import ChartManager from './ChartManager'
+import DashboardManager from './DashboardManager';
 
 function doUpdate() {
     console.log('Updating data visualization values')
@@ -49,7 +49,7 @@ async function initInputs() {
 }
 
 async function Execute() {
-    window.dataManager = new ChartManager()
+    window.dataManager = new DashboardManager()
 
     await initInputs()
 }

@@ -8,15 +8,44 @@ Map.prototype.map = function(func) {
     return ret
 }
 
-Map.prototype.getset = function(key, defaultval) {
+/* Map.prototype.getset = function(key, defaultval) {
     if (!this.has(key)) {
         this.set(key, defaultval)
     }
     return this.get(key)
-}
+} */
 
 export function mod(n, m) {
     return ((n % m) + m) % m
+}
+
+// isObject() and extend() taken from ApexCharts /utils/Utils.js (https://github.com/apexcharts/apexcharts.js/blob/master/src/utils/Utils.js) and optimized for a more restricted use case
+
+function isObject(item) {
+    return ( item && typeof item === 'object' && !Array.isArray(item) && item != null )   
+}
+
+// credit: http://stackoverflow.com/questions/27936772/deep-object-merging-in-es6-es7#answer-34749873
+export function extend(target, source) {
+    let output = target; //Object.assign({}, target)
+    if (isObject(target) && isObject(source)) {
+        Object.keys(source).forEach((key) => {
+            if (isObject(source[key])) {
+                if (!(key in target)) {
+                    Object.assign(output, {
+                        [key]: source[key]
+                    })
+                } else {
+                    output[key] = extend(target[key], source[key])
+                }
+            } else {
+                Object.assign(output, {
+                    [key]: source[key]
+                })
+            }
+        })
+    }
+    return output
 }
 
 export function findFirstMatching(iterlist, start, step, filter, inLimit) {

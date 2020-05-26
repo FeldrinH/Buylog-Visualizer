@@ -22,3 +22,11 @@ export function getPlayerColor(id) {
     console.log(`Requested color for unknown player ${id}!`)
     return '#000'
 }
+
+export function getPlayerName(id) {
+    if (playerinfo[id]) {
+        return playerinfo[id].name || id
+    }
+    console.log(`Requested name for unknown player ${id}!`)
+    return id
+}

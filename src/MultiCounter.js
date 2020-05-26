@@ -1,4 +1,4 @@
-export default class Counter {
+export default class MultiCounter {
     constructor() {
         this.counts = new Map()
         this.total = 0

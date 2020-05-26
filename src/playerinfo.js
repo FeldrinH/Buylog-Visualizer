@@ -12,7 +12,8 @@ export default {
         "color": "#e040fb"
     },
     "AGoodUplayRater": {
-        "color": "#43a047"
+        "color": "#43a047",
+        "name": "AGoodUpl..."
     },
     "Willy": {
         "color": "#673ab7"

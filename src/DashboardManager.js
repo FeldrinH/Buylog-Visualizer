@@ -1,10 +1,12 @@
 import { parse } from 'csv-es'
 import ApexCharts from 'apexcharts'
 import * as Util from './util'
+import * as Info from './metainfo'
 import * as Parser from './parser'
 import * as Helper from './processhelper'
+import * as Charts from './charts'
 
-export default class ChartManager {
+export default class DashboardManager {
     constructor() {
         this.needsReload = true
         this.needsUpdate = true
@@ -107,14 +109,7 @@ export default class ChartManager {
     renderCharts() {
         const weaponPaletteGenerator = Util.getLoopingPaletteGenerator()
 
-        Apex.chart = {
-            toolbar: {
-                show: false
-            },
-            zoom: {
-                enabled: false
-            }
-        }    
+        Charts.setupDefaults()  
     
         let options = {
             series: [{
@@ -131,7 +126,7 @@ export default class ChartManager {
             },
             tooltip: {
                 x: {
-                    formatter: (x) => x
+                    formatter: (val) => val
                 },
                 y: {
                     formatter: (val, { w, seriesIndex, dataPointIndex }) => `${w.config.series[seriesIndex].data[dataPointIndex].x} (${w.config.series[seriesIndex].data[dataPointIndex].state}):`
@@ -181,40 +176,23 @@ export default class ChartManager {
         };
         new ApexCharts(document.querySelector("#eventline"), options).render();*/
 
-        const buybreakdowns = document.querySelector("#buybreakdown")
-        const pietemplate = document.querySelector("#pietemplate")
-        this.playerlist.forEach(player => {
+        // Pie charts for per-player buy pie
+        Charts.addChartSeries(document.querySelector("#buybreakdown"), document.querySelector("#pietemplate"), this.playerlist, (element, player) => {
             const wepCounts = Helper.weaponCounts(this.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
-            console.log(wepCounts)
-            options = {
-                series: wepCounts.map(info => info.count),
-                labels: wepCounts.map(info => info.weapon),
-                colors: wepCounts.map(info => weaponPaletteGenerator(info.weapon)),
-                chart: {
-                    height: 350,
-                    type: 'pie'
-                },
+            console.log(player, wepCounts)
+            
+            Charts.addPie(element, {
+                series: wepCounts.map(val => val.count),
+                labels: wepCounts.map(val => val.weapon),
+                colors: wepCounts.map(val => weaponPaletteGenerator(val.weapon)),
                 title: {
-                    text: player,
-                    align: 'center'
-                },
-                legend: {
-                    show: false
-                },
-                stroke: {
-                    width: 0.5
+                    text: player
                 }
-            }
-    
-            const pieobj = pietemplate.content.firstElementChild.cloneNode(true)
-            buybreakdowns.appendChild(pieobj)
-            new ApexCharts(pieobj, options).render();
+            })
         })
 
-        const matchups = document.querySelector("#matchups")
-        const radartemplate = document.querySelector("#radartemplate")
-        this.playerlist.forEach(player => {
-            options = {
+        Charts.addChartSeries(document.querySelector("#matchups"), document.querySelector("#radartemplate"), this.playerlist, (element, player) => {
+            Charts.addChart(element, {
                 series: [{
                     name: 'Win %',
                     data: Helper.conflictBreakdown(this.filteredlog, player).map(info => ({
@@ -235,11 +213,48 @@ export default class ChartManager {
                     min: 0,
                     max: 100
                 }
-            }
-    
-            const radarobj = radartemplate.content.firstElementChild.cloneNode(true)
-            matchups.appendChild(radarobj)
-            new ApexCharts(radarobj, options).render();
+            })
+        })
+
+        const conflictBreakdowns = this.playerlist.map(player => ({ 
+            player: player,
+            breakdown: Helper.conflictBreakdown(this.filteredlog, player)
+        }))
+        const maxY = conflictBreakdowns.reduce((acc, val) => Math.max(acc, val.breakdown.reduce((acc, val) => Math.max(acc, val.wins + val.losses), 0)), 0)
+
+        Charts.addChartSeries(document.querySelector("#matchups"), document.querySelector("#radartemplate"), conflictBreakdowns, (element, { player, breakdown }) => {
+            Charts.addChart(element, {
+                series: [
+                    {
+                        name: 'Wins',
+                        data: breakdown.map(info => ({
+                            x: Info.getPlayerName(info.opponent),
+                            y: info.wins
+                        }))
+                    },
+                    {
+                        name: 'Losses',
+                        data: breakdown.map(info => ({
+                            x: Info.getPlayerName(info.opponent),
+                            y: info.losses
+                        }))
+                    }
+                ],
+                colors: ['#00ff00', '#ff0000'],
+                chart: {
+                    height: 350,
+                    type: 'bar',
+                    stacked: true
+                },
+                title: {
+                    text: player,
+                    align: 'center'
+                },
+                yaxis: {
+                    min: 0,
+                    max: maxY
+                }
+            })
         })
 
         options = {
