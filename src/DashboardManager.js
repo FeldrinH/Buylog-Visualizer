@@ -140,6 +140,115 @@ export default class DashboardManager {
         };
         new ApexCharts(document.querySelector("#statechart"), options).render();
 
+        const killsBreakdown = Helper.killsBreakdown(this.filteredlog, this.playerlist).sort((a,b) => (b.kills - a.kills))
+        console.log(killsBreakdown)
+
+        Charts.addBar(document.querySelector("#killsdeaths"), {
+            series: [
+                {
+                    name: 'Kills',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.kills
+                    }))
+                },
+                {
+                    name: 'Deaths',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.deaths
+                    }))
+                }
+            ],
+            colors: ['#00ff00', '#ff0000'],
+            title: {
+                text: 'Kill and death count'
+            },
+            chart: {
+                height: `${100 * this.playerlist.length}px`
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true
+                }
+            }
+        })
+
+        Charts.addBar(document.querySelector("#kdr"), {
+            series: [
+                {
+                    name: 'KDR',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.kdr
+                    }))
+                }
+            ],
+            title: {
+                text: 'Kill and death count'
+            },
+            chart: {
+                height: `${100 * this.playerlist.length}px`
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true
+                }
+            }
+        })
+
+        Charts.addBar(document.querySelector("#moneybreakdown"), {
+            series: [
+                {
+                    name: 'Money spent',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.moneyspent
+                    })),
+                },
+                {
+                    name: 'Money lost to death',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.moneylost
+                    }))
+                },
+                {
+                    name: 'Money made from kills',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.moneymade
+                    })),
+                },
+                {
+                    name: 'Money bailed out',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.moneybailed
+                    }))
+                }
+            ],
+            title: {
+                text: 'Kill and death count'
+            },
+            dataLabels: {
+                formatter: val => `$${Math.round(val / 100) / 10}k`
+            },
+            tooltip: {
+                y: {
+                    formatter: val => `$${val}`
+                }
+            },
+            chart: {
+                height: `${100 * this.playerlist.length}px`
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true
+                }
+            }
+        })
+
         /*options = {
             series: this.playerlist.map(player => ({
                 name: player,
@@ -222,7 +331,7 @@ export default class DashboardManager {
         }))
         const maxY = conflictBreakdowns.reduce((acc, val) => Math.max(acc, val.breakdown.reduce((acc, val) => Math.max(acc, val.wins + val.losses), 0)), 0)
 
-        Charts.addChartSeries(document.querySelector("#matchups"), document.querySelector("#radartemplate"), conflictBreakdowns, (element, { player, breakdown }) => {
+/*      Charts.addChartSeries(document.querySelector("#matchups"), document.querySelector("#radartemplate"), conflictBreakdowns, (element, { player, breakdown }) => {
             Charts.addChart(element, {
                 series: [
                     {
@@ -256,7 +365,7 @@ export default class DashboardManager {
                 }
             })
         })
-
+ */
         options = {
             series: ['Red', 'Blue'].map(team => ({
                 name: team,

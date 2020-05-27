@@ -28,6 +28,20 @@ export function addChart(element, useroptions) {
     return chart
 }
 
+export function addBar(element, useroptions) {
+    const options = Util.extend({
+        chart: {
+            height: 350,
+            type: 'bar'
+        },
+        title: {
+            align: 'center'
+        }
+    }, useroptions)
+
+    return addChart(element, options)
+}
+
 export function addPie(element, useroptions) {
     const options = Util.extend({
         chart: {

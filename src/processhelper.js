@@ -99,3 +99,24 @@ export function conflictBreakdown(eventlist, player) {
         percent: Math.round(value.get('wins') / value.get('total') * 1000) / 10,
     })).sort((a,b) => a.opponent.localeCompare(b.opponent))
 }
+
+export function killsBreakdown(eventlist, playerlist) {
+    return playerlist.map(player => {
+        const kills = eventlist.count(e => e.type === 'kill' && e.player === player)
+        const deaths = eventlist.count(e => e.type === 'death' && e.player === player)
+        const moneyspent = -eventlist.filter(e => e.category === 'buy' && e.player === player).reduce((acc, e) => acc + e.deltamoney, 0)
+        const moneylost = -eventlist.filter(e => e.category === 'death' && e.player === player).reduce((acc, e) => acc + e.deltamoney, 0)
+        const moneybailed = eventlist.filter(e => e.category === 'bailout' && e.player === player).reduce((acc, e) => acc + e.deltamoney, 0)
+        const moneymade = eventlist.filter(e => e.type === 'kill' && e.player === player).reduce((acc, e) => acc + e.deltamoney, 0)
+        return {
+            player: player,
+            kills: kills,
+            deaths: deaths,
+            kdr: Util.round(kills / deaths, 2),
+            moneyspent: moneyspent,
+            moneylost: moneylost,
+            moneymade: moneymade,
+            moneybailed: moneybailed
+        }
+    })
+}

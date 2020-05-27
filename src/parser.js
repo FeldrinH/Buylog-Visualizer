@@ -60,6 +60,18 @@ function ParseBuy(event) {
     }
 }
 
+function ParseBailout(event) {
+    if (event[1] !== 'bailout' && event[1] !== 'bailout-start') { return null }
+    return {
+        time: event[0],
+        type: event[1],
+        category: 'bailout',
+        player: event[2],
+        deltamoney: event[5],
+        money: event[4]
+    }
+}
+
 function ParseCity(event) {
     if (event[1] === 'city-take') {
         return {
@@ -92,7 +104,7 @@ function ParseFallback(event) {
     }
 }
 
-const parseFuncs = [ParseKill, ParseDeath, ParseJoinLeave, ParseBuy, ParseCity, ParseFallback]
+const parseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseJoinLeave, ParseCity, ParseFallback]
 
 function generateStateBlocks(eventlist, player) {
     const ret = []

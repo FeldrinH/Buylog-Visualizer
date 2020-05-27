@@ -8,6 +8,16 @@ Map.prototype.map = function(func) {
     return ret
 }
 
+Array.prototype.count = function(func) {
+    let count = 0
+    for (const elem of this) {
+        if (func(elem)) {
+            count += 1
+        }
+    }
+    return count
+}
+
 /* Map.prototype.getset = function(key, defaultval) {
     if (!this.has(key)) {
         this.set(key, defaultval)
@@ -17,6 +27,11 @@ Map.prototype.map = function(func) {
 
 export function mod(n, m) {
     return ((n % m) + m) % m
+}
+
+export function round(number, decimals) {
+    const exp = 10 ** decimals
+    return Math.round((number + Number.EPSILON) * exp) / exp
 }
 
 // isObject() and extend() taken from ApexCharts /utils/Utils.js (https://github.com/apexcharts/apexcharts.js/blob/master/src/utils/Utils.js) and optimized for a more restricted use case
