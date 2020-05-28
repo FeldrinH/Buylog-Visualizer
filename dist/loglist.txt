@@ -11,3 +11,5 @@
 2020.05.25-21.42-gm_stonecity.txt
 2020.05.25-22.29-gm_freespace_13.txt
 2020.05.26-22.14-gm_stonecity.txt
+2020.05.27-21.25-gm_stonecity.txt
+2020.05.27-22.13-gm_freespace_13.txt

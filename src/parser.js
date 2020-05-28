@@ -1,10 +1,10 @@
 import * as Util from './util'
 
 function ParseKill(event) {
-    if (event[1] !== 'kill') { return null }
+    if (event[1] !== 'kill' && event[1] !== 'kill-penalty') { return null }
     return {
         time: event[0],
-        type: event[5] >= 0 ? event[1] : 'kill-penalty',
+        type: event[1],
         category: 'kill',
         player: event[2],
         victim: event[3],
@@ -72,6 +72,19 @@ function ParseBailout(event) {
     }
 }
 
+function ParseDestroy(event, data) {
+    if (event[1] !== 'destroy') { return null }
+    return {
+        time: event[0],
+        type: event[1],
+        category: 'destroy',
+        player: event[2],
+        victim: event[3],
+        deltamoney: event[5],
+        money: event[4]
+    }
+}
+
 function ParseCity(event) {
     if (event[1] === 'city-take') {
         return {
@@ -94,6 +107,19 @@ function ParseCity(event) {
     return null
 }
 
+function ParseReset(event, data) {
+    if (!event[1].startsWith('reset-')) { return null }
+    if (Number.isNaN(event[2])) {
+        console.log(`${event[1]}  ${event[0]}`)
+    }
+    return {
+        time: event[0],
+        type: event[1],
+        category: 'reset',
+        target: event[2]
+    }
+}
+
 function ParseFallback(event) {
     if (event[0] === 'action' || event[0] === 'time') { return null }
     console.log(`Unparsed event: '${event[1]}'`)
@@ -104,7 +130,7 @@ function ParseFallback(event) {
     }
 }
 
-const parseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseJoinLeave, ParseCity, ParseFallback]
+const parseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseJoinLeave, ParseCity, ParseReset, ParseFallback]
 
 function generateStateBlocks(eventlist, player) {
     const ret = []

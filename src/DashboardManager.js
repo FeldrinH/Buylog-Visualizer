@@ -28,16 +28,16 @@ export default class DashboardManager {
         }
     }
     setStart(start) {
-        if (start !== this.start) {
+        if (!Object.is(start, this.start)) {
             this.start = start
-            this.params.set("start", start)
+            this.params.set("start", isFinite(start) ? start : '')
             this.needsUpdate = true
         }
     }
     setEnd(end) {
-        if (end !== this.end) {
+        if (!Object.is(end, this.end)) {
             this.end = end
-            this.params.set("end", end)
+            this.params.set("end", isFinite(end) ? end : '')
             this.needsUpdate = true
         }   
     }
@@ -71,11 +71,12 @@ export default class DashboardManager {
     }
 
     async update() {
+        console.log(`Updating charts  Reload: ${this.needsReload}  Update: ${this.needsUpdate}`)
         if (this.needsReload || this.needsUpdate) {
             window.history.pushState(`${this.filename} [${this.start};${this.end}]`, null, `?${this.params.toString()}`)
 
             this.meta = this.parseMeta(this.metaString)
-            console.log(this.meta)
+            //console.log(this.meta)
 
             if (this.needsReload) {
                 await this.loadData()
@@ -90,7 +91,7 @@ export default class DashboardManager {
     
                 this.needsUpdate = false
             }
-        }        
+        }
     }
 
     async loadData() {
@@ -98,6 +99,12 @@ export default class DashboardManager {
         this.rawlog = parse(dataStr, { typed: true })
         
         Parser.parse(this.rawlog, this)
+
+        /* this.log.forEach(e => {
+            if (e.type === 'reset-full') {
+                console.log(`${e.type}  ${e.time}`)
+            }
+        }) */
     }
 
     filterData() {
@@ -141,7 +148,7 @@ export default class DashboardManager {
         new ApexCharts(document.querySelector("#statechart"), options).render();
 
         const killsBreakdown = Helper.killsBreakdown(this.filteredlog, this.playerlist).sort((a,b) => (b.kills - a.kills))
-        console.log(killsBreakdown)
+        //console.log(killsBreakdown)
 
         Charts.addBar(document.querySelector("#killsdeaths"), {
             series: [
@@ -185,7 +192,7 @@ export default class DashboardManager {
                 }
             ],
             title: {
-                text: 'Kill and death count'
+                text: 'Kill to death ratio'
             },
             chart: {
                 height: `${100 * this.playerlist.length}px`
@@ -229,7 +236,7 @@ export default class DashboardManager {
                 }
             ],
             title: {
-                text: 'Kill and death count'
+                text: 'Cashflow breakdown'
             },
             dataLabels: {
                 formatter: val => `$${Math.round(val / 100) / 10}k`
@@ -288,7 +295,7 @@ export default class DashboardManager {
         // Pie charts for per-player buy pie
         Charts.addChartSeries(document.querySelector("#buybreakdown"), document.querySelector("#pietemplate"), this.playerlist, (element, player) => {
             const wepCounts = Helper.weaponCounts(this.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
-            console.log(player, wepCounts)
+            //console.log(player, wepCounts)
             
             Charts.addPie(element, {
                 series: wepCounts.map(val => val.count),
@@ -406,6 +413,9 @@ export default class DashboardManager {
     }
 
     clearCharts() {
+        if (typeof Apex._chartInstances !== 'undefined') {
+            Apex._chartInstances.slice().forEach(x => x.chart.destroy())   
+        }
         document.querySelector("#main").querySelectorAll("*").forEach(n => n.remove())
         const main = document.querySelector("#maintemplate").content.cloneNode(true)
         document.querySelector("#main").appendChild(main)
