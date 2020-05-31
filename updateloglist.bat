@@ -1,1 +1,1 @@
-dir /b dist\logs > dist\loglist.txt
+node compileloglist.js

@@ -1,4 +1,4 @@
-import { parse } from 'csv-es';
+import loglist from './loglist'
 import DashboardManager from './DashboardManager';
 
 const logselect = document.querySelector('#logselect')
@@ -35,36 +35,25 @@ function setupEnterDetect(input) {
     });
 }
 
-async function initInputs() {
+function initInputs() {
     setupEnterDetect(startbound)
     setupEnterDetect(endbound)
     setupEnterDetect(meta)
 
-    const loglistStr = await (await fetch(`loglist.txt`)).text()
-    const loglist = parse(loglistStr, { typed: false })
-    const gamelistStr = await (await fetch(`gamelist.txt`)).text()
-    const gamelist = parse(gamelistStr, { typed: false })
-
-    let i = 0
-    loglist.forEach(([opt]) => {
-        const [ date, time, mapstr ] = opt.split('-')
+    loglist.forEach(({ log, games }) => {
+        const [ date, time, mapstr ] = log.split('-')
         const [ map, ext ] = mapstr.split('.')
 
-        logselect.add(new Option(`${date} ${time.replace('.', ':')} ${map}`, opt));
+        logselect.add(new Option(`${date} ${time.replace('.', ':')} ${map}`, log));
 
-        while (i < gamelist.length && gamelist[i][0] === opt) {
-            const gameOpt = new Option(`└ ${gamelist[i][1]}`, opt)
-            gameOpt.dataset.start = gamelist[i][2]
-            gameOpt.dataset.end = gamelist[i][3]
-            gameOpt.dataset.meta = gamelist[i][4]
+        games.forEach(game => {
+            const gameOpt = new Option(`└ ${game.name}`, log)
+            gameOpt.dataset.start = game.start
+            gameOpt.dataset.end = game.end
+            gameOpt.dataset.meta = game.meta
             logselect.add(gameOpt);
-            i += 1
-        }
+        })
     })
-    if (i !== gamelist.length) {
-        console.log('UNPARSED GAMELIST VALUES. CHECK GAMELIST ORDERING!')
-    }
-    //console.log(loglist)
 
     logselect.value = dataManager.filename
     startbound.value = dataManager.start
@@ -75,10 +64,10 @@ async function initInputs() {
     logselect.addEventListener("change", doGameUpdate)
 }
 
-async function Execute() {
+function execute() {
     window.dataManager = new DashboardManager()
 
-    await initInputs()
+    initInputs()
 }
 
-Execute()
+execute()
