@@ -6,15 +6,16 @@ import MultiCounter from './MultiCounter'
 export function stateTimelineSeries(players) {
     const ret = []
     players.forEach((info, player) => {
-        info.stateblocks.forEach(({start, end, state}) => {
+        info.stateblocks.forEach(({start, end, state, team}) => {
             ret.push({
                 x: player,
                 y: [
                     start,
                     end
                 ],
-                fillColor: state === 'afk' ? '#aaaaff' : '#0000ff',
-                state: state
+                fillColor: Info.getTeamColor(team, state === 'afk'),
+                state: state,
+                team: team.toLowerCase()
             })
         })
     })

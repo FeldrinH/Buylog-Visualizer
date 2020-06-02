@@ -107,6 +107,17 @@ function ParseCity(event) {
     return null
 }
 
+function ParseTeam(event, data) {
+    if (event[1] !== 'team-join') { return null }
+    return {
+        time: event[0],
+        type: event[1],
+        category: 'team',
+        player: event[2],
+        team: event[3]
+    }
+}
+
 function ParseReset(event, data) {
     if (!event[1].startsWith('reset-')) { return null }
     if (Number.isNaN(event[2])) {
@@ -130,43 +141,48 @@ function ParseFallback(event) {
     }
 }
 
-const parseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseJoinLeave, ParseCity, ParseReset, ParseFallback]
+const parseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseJoinLeave, ParseCity, ParseTeam, ParseReset, ParseFallback]
 
 function generateStateBlocks(eventlist, player) {
     const ret = []
     
     let lastState = 'offline'
+    let lastTeam = 'Unassigned'
     let lastTime = 0
-    const appendEvent = (curState, curTime) => {
+    const appendEvent = (curTime, curState, curTeam) => {
         if (lastState !== 'offline') {
             ret.push({
                 start: lastTime,
                 end: curTime,
-                state: lastState
+                state: lastState,
+                team: lastTeam
             })
         }
         lastTime = curTime
-        lastState = curState
+        lastTeam = curTeam || lastTeam
+        lastState = curState || lastState
     }
 
     for (const event of eventlist) {
-        if (event.player === player && event.category === 'joinleave') {
+        if (event.player === player && (event.category === 'joinleave' || event.category === 'team')) {
             if (event.type === 'join') {
                 if (lastState === 'offline') {
-                    appendEvent('active', event.time)
+                    appendEvent(event.time, 'active', null)
                 }
             } else if (event.type === 'leave') {
-                appendEvent('offline', event.time)
+                appendEvent(event.time, 'offline', null)
             } else if (event.type === 'afk-enter') {
-                appendEvent('afk', event.time)
+                appendEvent(event.time, 'afk', null)
             } else if (event.type === 'afk-leave') {
-                appendEvent('active', event.time)
+                appendEvent(event.time, 'active', null)
+            } else if (event.type === 'team-join') {
+                appendEvent(event.time, null, event.team)
             } else {
-                console.log(`Unknown joinleave event '${event.type}'`)
+                console.log(`Unknown player state change event '${event.type} (${event.category})'`)
             }
         }
     }
-    appendEvent('offline', eventlist[eventlist.length-1].time)
+    appendEvent(eventlist[eventlist.length-1].time, 'offline', null)
 
     return ret
 }

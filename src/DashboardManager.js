@@ -72,6 +72,8 @@ export default class DashboardManager {
 
     async update() {
         console.log(`Updating charts  Reload: ${this.needsReload}  Update: ${this.needsUpdate}`)
+        console.log(`${this.filename},NAME,${isFinite(this.start) ? this.start : ''},${isFinite(this.end) ? this.end : ''},${this.metaString}`)
+        
         if (this.needsReload || this.needsUpdate) {
             window.history.pushState(`${this.filename} [${this.start};${this.end}]`, null, `?${this.params.toString()}`)
 
@@ -136,7 +138,10 @@ export default class DashboardManager {
                     formatter: (val) => val
                 },
                 y: {
-                    formatter: (val, { w, seriesIndex, dataPointIndex }) => `${w.config.series[seriesIndex].data[dataPointIndex].x} (${w.config.series[seriesIndex].data[dataPointIndex].state}):`
+                    formatter: (val, { w, seriesIndex, dataPointIndex }) => {
+                        const dataPoint = w.config.series[seriesIndex].data[dataPointIndex]
+                        return `${dataPoint.x} (${dataPoint.state}):`
+                    }
                 }
             },
             xaxis: {

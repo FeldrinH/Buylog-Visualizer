@@ -3,3 +3,5 @@
 2020.05.27-22.13-gm_freespace_13.txt,Team game (? players),499,2010,cityend:1000
 2020.05.30-21.52-gm_freespace_13.txt,First team game (7/8 players),1935.2,4770,cityend:1500
 2020.05.30-21.52-gm_freespace_13.txt,Second team game (7/8 players),5840.4,7855,cityend:1000
+2020.06.01-21.33-gm_toysoldiers.txt,Team deathmatch,1093,,
+2020.06.01-22.29-fightspace3b.txt,Team game (7/8 players),731.3,1742,cityend:1000

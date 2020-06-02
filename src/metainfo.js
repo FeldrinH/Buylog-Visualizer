@@ -1,6 +1,57 @@
-import playerinfo from './playerinfo.js'
-//import objectinfo from './objectinfo.js'
 import * as Util from './util'
+
+const playerinfo = {
+    "FeldrinH": {
+        "color": "#ffc107"
+    },
+    "Atamer": {
+        "color": "#1e88e5"
+    },
+    "kräk": {
+        "color": "#c62828"
+    },
+    "i kill you": {
+        "color": "#e040fb"
+    },
+    "AGoodUplayRater": {
+        "color": "#43a047",
+        "name": "AGoodUpl..."
+    },
+    "Willy": {
+        "color": "#673ab7"
+    },
+    "Wyolop": {
+        "color": "#ff5722"
+    },
+    "SignalBit": {
+        "color": "#ffeb3b"
+    },
+    "Napoléon": {
+        "color": "#212121"
+    },
+    "Külvot": {
+        "color": "#795548"
+    }
+}
+
+const teaminfo = {
+    Red: {
+        colorFull: "#ff0000",
+        colorLight: "#ffaaaa"
+    },
+    Blue: {
+        colorFull: "#0000ff",
+        colorLight: "#aaaaff"
+    },
+    Wildcard: {
+        colorFull: "#000000",
+        colorLight: "#aaaaaa"
+    },
+    Unassigned: {
+        colorFull: "#656775",
+        colorLight: "#AEB0BF"
+    }
+}
 
 function stringHashCode(str) {
     let hash = 0;
@@ -29,4 +80,8 @@ export function getPlayerName(id) {
     }
     console.log(`Requested name for unknown player ${id}!`)
     return id
+}
+
+export function getTeamColor(id, lighten) {
+    return lighten ? teaminfo[id].colorLight : teaminfo[id].colorFull
 }

@@ -13,8 +13,6 @@ function doUpdate() {
     dataManager.setEnd(parseFloat(endbound.value))
     dataManager.setMeta(meta.value)
 
-    console.log(`${dataManager.filename},NAME,${isFinite(dataManager.start) ? dataManager.start : ''},${isFinite(dataManager.end) ? dataManager.end : ''},${dataManager.metaString}`)
-
     dataManager.update()
 }
 
