@@ -26,6 +26,15 @@ Array.prototype.sum = function(func) {
     return total
 }
 
+Array.prototype.findLast = function(func) {
+    for (let i = this.length - 1; i >=0; i--) {
+        if (func(this[i])) {
+            return this[i]
+        }
+    }
+    return undefined
+}
+
 /* Map.prototype.getset = function(key, defaultval) {
     if (!this.has(key)) {
         this.set(key, defaultval)

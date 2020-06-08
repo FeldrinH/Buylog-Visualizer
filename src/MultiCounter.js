@@ -23,4 +23,8 @@ export default class MultiCounter {
     map(func) {
         return this.counts.map(func)
     }
+
+    forEach(func) {
+        return this.counts.forEach(func)
+    }
 }

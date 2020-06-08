@@ -2,4 +2,4 @@ dist/logs
 dist/main.js
 src/loglist.js
 node_modules
-*.csv
+*.tsv
