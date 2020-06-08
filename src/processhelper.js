@@ -69,7 +69,7 @@ export function eventCountMovingAverageSeries(eventlist, player, start, end, dur
 export function weaponCounts(eventlist, player, eventtypes) {
     const counts = new Counter()
     for (const e of eventlist) {
-        if (e.player === player && eventtypes.has(e.type)) {
+        if ((e.player === player || player === null) && eventtypes.has(e.type)) {
             const weapon = e.weapon || e.class
             counts.increment(weapon)
         }

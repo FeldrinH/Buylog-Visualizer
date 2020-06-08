@@ -6,6 +6,7 @@ module.exports = merge(common, {
     devtool: 'inline-source-map',
     devServer: {
         contentBase: './dist',
+        openPage: 'http://localhost:1515',
         disableHostCheck: true,
         host: '0.0.0.0',
         port: 1515

@@ -297,17 +297,75 @@ export default class DashboardManager {
         };
         new ApexCharts(document.querySelector("#eventline"), options).render();*/
 
+        // Global bie charts
+        const buyCounts = Helper.weaponCounts(this.filteredlog, null, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
+        const killCounts = Helper.weaponCounts(this.filteredlog, null, new Set(['kill']))
+        Charts.addPie(document.querySelector("#allbuyoverview .lefthalf"), {
+            series: buyCounts.map(val => val.count),
+            labels: buyCounts.map(val => val.weapon),
+            colors: buyCounts.map(val => weaponPaletteGenerator(val.weapon)),
+            chart: {
+                height: 800
+            },
+            plotOptions: {
+                pie: {
+                    dataLabels: {
+                        minAngleToShowLabel: 5
+                    }
+                }
+            },
+            title: {
+                text: `Purchases`
+            }
+        })
+        Charts.addPie(document.querySelector("#allbuyoverview .righthalf"), {
+            series: killCounts.map(val => val.count),
+            labels: killCounts.map(val => val.weapon),
+            colors: killCounts.map(val => weaponPaletteGenerator(val.weapon)),
+            chart: {
+                height: 800
+            },
+            plotOptions: {
+                pie: {
+                    dataLabels: {
+                        minAngleToShowLabel: 5
+                    }
+                }
+            },
+            title: {
+                text: `Kills`
+            }
+        })
+
         // Pie charts for per-player buy pie
         Charts.addChartSeries(document.querySelector("#buybreakdown"), document.querySelector("#pietemplate"), this.playerlist, (element, player) => {
-            const wepCounts = Helper.weaponCounts(this.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
+            const buyCounts = Helper.weaponCounts(this.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
+            const killCounts = Helper.weaponCounts(this.filteredlog, player, new Set(['kill']))
             //console.log(player, wepCounts)
             
-            Charts.addPie(element, {
-                series: wepCounts.map(val => val.count),
-                labels: wepCounts.map(val => val.weapon),
-                colors: wepCounts.map(val => weaponPaletteGenerator(val.weapon)),
+            console.log(element, element.firstChild)
+
+            Charts.addPie(element.querySelector(".lefthalf"), {
+                series: buyCounts.map(val => val.count),
+                labels: buyCounts.map(val => val.weapon),
+                colors: buyCounts.map(val => weaponPaletteGenerator(val.weapon)),
+                chart: {
+                    height: 310
+                },
                 title: {
-                    text: player
+                    text: `${player} purchases`
+                }
+            })
+
+            Charts.addPie(element.querySelector(".righthalf"), {
+                series: killCounts.map(val => val.count),
+                labels: killCounts.map(val => val.weapon),
+                colors: killCounts.map(val => weaponPaletteGenerator(val.weapon)),
+                chart: {
+                    height: 310
+                },
+                title: {
+                    text: `${player} kills`
                 }
             })
         })

@@ -22,26 +22,32 @@
         <template id="maintemplate">
             <div id="statechart" class="widechart"></div>
             
-            <div class="multichartbox">
-                <div id="killsdeaths" class="halfchart"></div>
-                <div id="kdr" class="halfchart"></div>
-                <div id="moneybreakdown" class="halfchart"></div>
+            <div class="multichartcontainer">
+                <div id="killsdeaths" class="barsplit"></div>
+                <div id="kdr" class="barsplit"></div>
+                <div id="moneybreakdown" class="barsplit"></div>
             </div>
             
-            <div id="eventline" class="widechart"></div>
+            <div id="allbuyoverview" class="widechart doublechartcontainer">
+                <div class="halfchart lefthalf"></div>
+                <div class="halfchart righthalf"></div>
+            </div>
             
-            <div id="buybreakdown" class="multichartbox"></div>
-            <div id="matchups" class="multichartbox"></div>
+            <div id="buybreakdown" class="multichartcontainer"></div>
+            <div id="matchups" class="multichartcontainer"></div>
             
             <div id="teamtimes" class="widechart"></div>
         </template>
         
         <template id="radartemplate">
-            <div class="matchupradar"></div>
+            <div class="multichartelement"></div>
         </template>
 
         <template id="pietemplate">
-            <div class="piechart"></div>
+            <div class="multichartdoubleelement">
+                <div class="halfchart lefthalf"></div>
+                <div class="halfchart righthalf"></div>
+            </div>
         </template>
     </body>
 </html>

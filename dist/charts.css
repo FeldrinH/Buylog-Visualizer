@@ -10,26 +10,37 @@
     margin-right: 10px;
 }
 
-.chart {
-    width: 80vw;
-    margin: auto;
-}
-
-.multichartbox {
+.multichartcontainer {
     display: flex;
     justify-content: center;
     flex-flow: row wrap;
     margin: 0 20px;
 }
 
-.halfchart {
+.doublechartcontainer {
+    display: flex;
+    justify-content: center;
+    flex-flow: row;
+    margin: 0 100px;
+}
+
+.multichartelement {
+    width: 450px;
+}
+
+.multichartdoubleelement {
+    width: 580px;
+    margin-left: 15px;
+    margin-right: 15px;
+    display: flex;
+    flex-flow: row;
+}
+
+.barsplit {
     width: 33%;
 }
 
-.matchupradar {
-    width: 400px;
+.halfchart {
+    flex: 50% 1 1;
 }
 
-.piechart {
-    width: 400px;
-}
