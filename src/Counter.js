@@ -9,11 +9,26 @@ export default class Counter {
         this.total += increment
     }
 
+    set(key, value) {
+        this.total -= (this.counts.get(key) || 0)
+        this.total += value
+        return this.counts.set(key, value)
+    }
+
+    delete(key) {
+        this.total -= (this.counts.get(key) || 0)
+        return this.counts.delete(key)
+    }
+
     get(key) {
         return this.counts.get(key) || 0
     }
 
     map(func) {
         return this.counts.map(func)
+    }
+
+    forEach(func) {
+        return this.counts.forEach(func)
     }
 }

@@ -18,6 +18,14 @@ Array.prototype.count = function(func) {
     return count
 }
 
+Array.prototype.sum = function(func) {
+    let total = 0
+    for (const elem of this) {
+        total += func(elem)
+    }
+    return total
+}
+
 /* Map.prototype.getset = function(key, defaultval) {
     if (!this.has(key)) {
         this.set(key, defaultval)
