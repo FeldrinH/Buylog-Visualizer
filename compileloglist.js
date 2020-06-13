@@ -1,5 +1,5 @@
-const fs = require('fs')
-const CSV = require('csv-es')
+import fs from 'fs'
+import * as CSV from '@vanillaes/csv'
 
 const loglist = fs.readdirSync('./dist/logs/')
 const gamelist = CSV.parse(fs.readFileSync('gamelist.txt'), { typed: false })

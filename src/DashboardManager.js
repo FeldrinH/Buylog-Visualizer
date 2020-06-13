@@ -1,10 +1,13 @@
-import { parse } from 'csv-es'
+import parse from 'csv-parse/lib/sync.js'
 import ApexCharts from 'apexcharts'
+import moment from 'moment'
 import * as Util from './util'
 import * as Info from './metainfo'
 import * as Parser from './parser'
 import * as Helper from './processhelper'
 import * as Charts from './charts'
+import { currentParseFuncs } from './currentparsefuncs'
+import { legacyFullParseFuncs } from './legacyparsefuncs'
 
 export default class DashboardManager {
     constructor() {
@@ -15,7 +18,7 @@ export default class DashboardManager {
         this.filename = this.params.get("log")
         this.start = parseFloat(this.params.get("start"))
         this.end = parseFloat(this.params.get("end"))
-        this.metaString = this.params.get("meta")
+        this.metaString = this.params.get("meta") || ""
         this.update()
     }
 
@@ -63,11 +66,16 @@ export default class DashboardManager {
         return ret
     }
 
+    parseLogDate(filename) {
+        const [ date, time, mapstr ] = filename.split('-')
+        return moment(`${date} ${time}`, 'YYYY.MM.DD HH.mm', true)
+    }
+
     getValidStart() {
-        return isFinite(this.start) ? this.start : this.logstart
+        return isFinite(this.start) ? this.start : this.data.starttime
     }
     getValidEnd() {
-        return isFinite(this.end) ? this.end : this.logend
+        return isFinite(this.end) ? this.end : this.data.endtime
     }
 
     async update() {
@@ -98,9 +106,18 @@ export default class DashboardManager {
 
     async loadData() {
         const dataStr = await (await fetch(`/logs/${this.filename}`)).text()
-        this.rawlog = parse(dataStr, { typed: true })
+        this.rawlog = parse(dataStr, { skip_empty_lines: true, relax_column_count: true, cast: true })
         
-        Parser.parse(this.rawlog, this)
+        this.logdate = this.parseLogDate(this.filename)
+        if (!this.logdate.isValid()) {
+            console.log(`WARNING: Invalid log date '${this.logdate._i}'`)
+        }
+        this.legacyparse = this.logdate.year() <= 2019
+        if (this.legacyparse) {
+            console.log('INFO: Old log detected. Using legacy parser.')
+        }
+
+        this.data = Parser.parse(this.rawlog, this.legacyparse ? legacyFullParseFuncs : currentParseFuncs, true)
 
         /* this.log.forEach(e => {
             if (e.type === 'reset-full') {
@@ -112,7 +129,7 @@ export default class DashboardManager {
     filterData() {
         const start = this.getValidStart()
         const end = this.getValidEnd()
-        this.filteredlog = this.log.filter(e => e.time >= start && e.time <= end)
+        this.data.filteredlog = this.data.log.filter(e => e.time >= start && e.time <= end)
     }
 
     renderCharts() {
@@ -122,7 +139,7 @@ export default class DashboardManager {
     
         let options = {
             series: [{
-                data: Helper.stateTimelineSeries(this.players)
+                data: Helper.stateTimelineSeries(this.data.players)
             }],
             chart: {
                 height: 300,
@@ -152,7 +169,7 @@ export default class DashboardManager {
         };
         new ApexCharts(document.querySelector("#statechart"), options).render();
 
-        const killsBreakdown = Helper.killsBreakdown(this.filteredlog, this.playerlist).sort((a,b) => (b.kills - a.kills))
+        const killsBreakdown = Helper.killsBreakdown(this.data.filteredlog, this.data.playerlist).sort((a,b) => (b.kills - a.kills))
         //console.log(killsBreakdown)
 
         Charts.addBar(document.querySelector("#killsdeaths"), {
@@ -177,7 +194,7 @@ export default class DashboardManager {
                 text: 'Kill and death count'
             },
             chart: {
-                height: `${100 * this.playerlist.length}px`
+                height: `${100 * this.data.playerlist.length}px`
             },
             plotOptions: {
                 bar: {
@@ -200,7 +217,7 @@ export default class DashboardManager {
                 text: 'Kill to death ratio'
             },
             chart: {
-                height: `${100 * this.playerlist.length}px`
+                height: `${100 * this.data.playerlist.length}px`
             },
             plotOptions: {
                 bar: {
@@ -252,7 +269,7 @@ export default class DashboardManager {
                 }
             },
             chart: {
-                height: `${100 * this.playerlist.length}px`
+                height: `${100 * this.data.playerlist.length}px`
             },
             plotOptions: {
                 bar: {
@@ -298,8 +315,8 @@ export default class DashboardManager {
         new ApexCharts(document.querySelector("#eventline"), options).render();*/
 
         // Global bie charts
-        const buyCounts = Helper.weaponCounts(this.filteredlog, null, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
-        const killCounts = Helper.weaponCounts(this.filteredlog, null, new Set(['kill']))
+        const buyCounts = Helper.weaponCounts(this.data.filteredlog, null, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
+        const killCounts = Helper.weaponCounts(this.data.filteredlog, null, new Set(['kill']))
         Charts.addPie(document.querySelector("#allbuyoverview .lefthalf"), {
             series: buyCounts.map(val => val.count),
             labels: buyCounts.map(val => val.weapon),
@@ -338,12 +355,10 @@ export default class DashboardManager {
         })
 
         // Pie charts for per-player buy pie
-        Charts.addChartSeries(document.querySelector("#buybreakdown"), document.querySelector("#pietemplate"), this.playerlist, (element, player) => {
-            const buyCounts = Helper.weaponCounts(this.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
-            const killCounts = Helper.weaponCounts(this.filteredlog, player, new Set(['kill']))
+        Charts.addChartSeries(document.querySelector("#buybreakdown"), document.querySelector("#pietemplate"), this.data.playerlist, (element, player) => {
+            const buyCounts = Helper.weaponCounts(this.data.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
+            const killCounts = Helper.weaponCounts(this.data.filteredlog, player, new Set(['kill']))
             //console.log(player, wepCounts)
-            
-            console.log(element, element.firstChild)
 
             Charts.addPie(element.querySelector(".lefthalf"), {
                 series: buyCounts.map(val => val.count),
@@ -370,11 +385,11 @@ export default class DashboardManager {
             })
         })
 
-        Charts.addChartSeries(document.querySelector("#matchups"), document.querySelector("#radartemplate"), this.playerlist, (element, player) => {
+        Charts.addChartSeries(document.querySelector("#matchups"), document.querySelector("#radartemplate"), this.data.playerlist, (element, player) => {
             Charts.addChart(element, {
                 series: [{
                     name: 'Win %',
-                    data: Helper.conflictBreakdown(this.filteredlog, player).map(info => ({
+                    data: Helper.conflictBreakdown(this.data.filteredlog, player).map(info => ({
                         x: info.opponent,
                         y: info.percent
                     }))
@@ -395,9 +410,9 @@ export default class DashboardManager {
             })
         })
 
-        const conflictBreakdowns = this.playerlist.map(player => ({ 
+        const conflictBreakdowns = this.data.playerlist.map(player => ({ 
             player: player,
-            breakdown: Helper.conflictBreakdown(this.filteredlog, player)
+            breakdown: Helper.conflictBreakdown(this.data.filteredlog, player)
         }))
         const maxY = conflictBreakdowns.reduce((acc, val) => Math.max(acc, val.breakdown.reduce((acc, val) => Math.max(acc, val.wins + val.losses), 0)), 0)
 
@@ -436,43 +451,45 @@ export default class DashboardManager {
             })
         })
  */
-        options = {
-            series: ['Red', 'Blue'].map(team => ({
-                name: team,
-                data: Helper.cityTimeSeries(this.log, team)
-            })),
-            colors: ['#ff0000', '#0000ff'],
-            /*series: this.playerlist.map(player => ({
-                name: player,
-                data: Helpers.countMovingAverage(this.filteredlog, player, this.getValidStart(), this.getValidEnd(), 600, 60)
-            })),*/
-            chart: {
-                height: 900,
-                type: 'line'
-            },
-            stroke: {
-                curve: 'straight',
-                width: 3
-            },
-            title: {
-                text: 'Team time',
-                align: 'left'
-            },
-            annotations: {
-                yaxis: [{
-                    y: this.meta.cityend || 0,
-                    borderWidth: 1.5,
-                    strokeDashArray: [5,2],
-                    borderColor: '#00cc00'
-                }]
-            },
-            xaxis: {
-                type: 'numeric',
-                min: this.getValidStart(),
-                max: this.getValidEnd()
-            }
-        };
-        new ApexCharts(document.querySelector("#teamtimes"), options).render();
+        if (this.data.filteredlog.some(e => e.category === 'city')) {
+            options = {
+                series: ['Red', 'Blue'].map(team => ({
+                    name: team,
+                    data: Helper.cityTimeSeries(this.data.log, team)
+                })),
+                colors: ['#ff0000', '#0000ff'],
+                /*series: this.playerlist.map(player => ({
+                    name: player,
+                    data: Helpers.countMovingAverage(this.filteredlog, player, this.getValidStart(), this.getValidEnd(), 600, 60)
+                })),*/
+                chart: {
+                    height: 900,
+                    type: 'line'
+                },
+                stroke: {
+                    curve: 'straight',
+                    width: 3
+                },
+                title: {
+                    text: 'Team time',
+                    align: 'left'
+                },
+                annotations: {
+                    yaxis: [{
+                        y: this.meta.cityend || 0,
+                        borderWidth: 1.5,
+                        strokeDashArray: [5,2],
+                        borderColor: '#00cc00'
+                    }]
+                },
+                xaxis: {
+                    type: 'numeric',
+                    min: this.getValidStart(),
+                    max: this.getValidEnd()
+                }
+            };
+            new ApexCharts(document.querySelector("#teamtimes"), options).render();
+        }
     }
 
     clearCharts() {

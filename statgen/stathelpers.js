@@ -13,6 +13,19 @@ export const versionedMaps = [
     { is: map => map.toLowerCase().includes('pit') || map === 'gm_oilworks', name: 'gm_pit/gm_oilworks' }
 ]
 
+const paul = new Set(['Napoléon', 'Patron', 'TRUMP', 'Don Pablo', 'El Padrino', 'Mierda', 'Kim Jong-un', 'Paulo', 'Pablo'])
+const leidt = new Set(['Silvio', 'kräk'])
+const elias = new Set(['Wyolop', 'ElierWorks'])
+const eerik = new Set(['eerik.haamer', 'Ez Hammer'])
+const rauno = new Set(['User #2', 'marcusmaa', '9S', '(1)martIn1950', '(1)martin1950'])
+export const userAlts = [
+    { is: map => paul.has(map), name: 'Paul' },
+    { is: map => leidt.has(map), name: 'Leidt' },
+    { is: map => elias.has(map), name: 'Elias' },
+    { is: map => eerik.has(map), name: 'Eerik' },
+    { is: map => rauno.has(map), name: 'Rauno' }
+]
+
 export function forEachLogfile(func) {
     for (const folder of locations) {
         for (const filename of fs.readdirSync(folder)) {
@@ -52,8 +65,17 @@ export function parseMap(filename) {
     }
 }
 
-export function mergeVersionedMaps(counter) {
-    for (const mapinfo of versionedMaps) {
+export function altToMain(name) {
+    for (const info of userAlts) {
+        if (info.is(name)) {
+            return `${info.name} (total)`
+        }
+    }
+    return name
+}
+
+export function mergeCounters(counter, mergeRules) {
+    for (const mapinfo of mergeRules) {
         const mergedMaps = []
         let total = 0
         counter.forEach((value, key) => {

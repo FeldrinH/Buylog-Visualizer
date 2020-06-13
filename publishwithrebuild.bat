@@ -1,4 +1,4 @@
 call updateloglist.bat
-call npx webpack --config webpack.prod.js
+call npx webpack --display-modules --config webpack.prod.cjs
 call surge ./dist
 pause

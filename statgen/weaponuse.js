@@ -18,7 +18,8 @@ function countWeapons(counts, type, eventlist, eventtypes) {
     }
 }
 
-const counts = new MultiCounter()
+const machinecounts = new MultiCounter()
+const weaponcounts = new MultiCounter()
 
 StatHelpers.forEachLogfile((filename, folder) => {
     //console.log(`PROCESSING: ${folder}\\${filename}`)
@@ -27,12 +28,14 @@ StatHelpers.forEachLogfile((filename, folder) => {
     const data = Parser.parse(rawlog, parseFuncs, false)
     
     if (StatHelpers.isValidGame(rawlog, data, filename, folder)) {
-        countWeapons(counts, 'buy', data.log, new Set(['buy-weapon', 'buy-weapon-drop', 'buy-entity', 'buy-vehicle']))
-        countWeapons(counts, 'kill', data.log, new Set(['kill']))
+        countWeapons(machinecounts, 'buy', data.log, new Set(['buy-entity', 'buy-vehicle']))
+        countWeapons(weaponcounts, 'buy', data.log, new Set(['buy-weapon', 'buy-weapon-drop', 'buy-entity', 'buy-vehicle']))
+        countWeapons(weaponcounts, 'kill', data.log, new Set(['kill']))
         console.log(`${filename} - PROCESSED`)
     }
 })
 
-fs.writeFileSync('./weaponcounts.tsv', StatHelpers.mutiCounterToTSV(counts, ['buy', 'kill']))
+fs.writeFileSync('./weaponcounts.tsv', StatHelpers.mutiCounterToTSV(weaponcounts, ['buy', 'kill']))
+fs.writeFileSync('./machinecounts.tsv', StatHelpers.mutiCounterToTSV(machinecounts, ['buy']))
 
 console.log('Done.')

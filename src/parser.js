@@ -84,7 +84,7 @@ function determineEndTimestamp(data) {
     }
 }
 
-export function parse(rawlog, parseFuncs, extrainfo) {
+export function parse(rawlog, parseFuncs, extrainfo, detectplayers = false) {
     const data = {}
     data.log = []
     data.players = new Map()
@@ -105,10 +105,20 @@ export function parse(rawlog, parseFuncs, extrainfo) {
         index += 1
     }
 
-    data.logstart = data.log[0].time
-    data.logend = data.log[data.log.length - 1].time
+    data.starttime = data.log[0].time
+    data.endtime = data.log[data.log.length - 1].time
     data.starttimestamp = determineStartTimestamp(data)
     data.endtimestamp = determineEndTimestamp(data)
+
+    /*if (detectplayers) {
+        data.log.forEach(e => {
+            if (e.player && !data.players.has(e.player)) {
+                data.players.set(e.player, {
+                    id: e.player
+                })
+            }
+        })
+    }*/
 
     data.playerlist = Array.from(data.players.keys())
     if (extrainfo) {
@@ -120,7 +130,7 @@ export function parse(rawlog, parseFuncs, extrainfo) {
         })
     }
 
-    //console.log(data.log.filter(e => e.category === 'joinleave'))
+    //console.log(data.log)
 
     return data
 }

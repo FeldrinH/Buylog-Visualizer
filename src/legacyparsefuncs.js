@@ -1,4 +1,4 @@
-import { ParseTimestamp } from './currentparsefuncs.js'
+import { ParseTimestamp, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallback } from './currentparsefuncs.js'
 
 export function ParseTimestampedHumanReadable(event, data) {
     if (!event[1].endsWith('--')) { return null }
@@ -21,7 +21,7 @@ export function ParseTimestampedHumanReadable(event, data) {
         type = 'logging-ended'
         category = 'logging'
     } else {
-        //console.log(`Unparsed human readable event '${parse[1]}'`)
+        console.log(`Unparsed human readable event '${parse[1]}'`)
         type = event[1].split('--')[1]
         category = 'unknown'
     }
@@ -99,3 +99,5 @@ export function ParseJoinLeaveStandardized(event, data) {
 }
 
 export const legacyParseFuncs = [ParseJoinLeaveStandardized, ParseTimestampedHumanReadable, ParseLoggingStandardized]
+
+export const legacyFullParseFuncs = [ParseTimestampedHumanReadable, ParseJoinLeaveStandardized, ParseLoggingStandardized, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallback]
