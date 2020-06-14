@@ -84,7 +84,7 @@ function determineEndTimestamp(data) {
     }
 }
 
-export function parse(rawlog, parseFuncs, extrainfo, detectplayers = false) {
+export function parse(rawlog, parseFuncs, extrainfo, forcedetectplayers = false) {
     const data = {}
     data.log = []
     data.players = new Map()
@@ -110,7 +110,7 @@ export function parse(rawlog, parseFuncs, extrainfo, detectplayers = false) {
     data.starttimestamp = determineStartTimestamp(data)
     data.endtimestamp = determineEndTimestamp(data)
 
-    /*if (detectplayers) {
+    if (data.players.size === 0 || forcedetectplayers) {
         data.log.forEach(e => {
             if (e.player && !data.players.has(e.player)) {
                 data.players.set(e.player, {
@@ -118,7 +118,7 @@ export function parse(rawlog, parseFuncs, extrainfo, detectplayers = false) {
                 })
             }
         })
-    }*/
+    }
 
     data.playerlist = Array.from(data.players.keys())
     if (extrainfo) {

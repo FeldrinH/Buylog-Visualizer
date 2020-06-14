@@ -38,11 +38,11 @@ function initInputs() {
     setupEnterDetect(endbound)
     setupEnterDetect(meta)
 
-    loglist.forEach(({ log, games }) => {
+    loglist.forEach(({ log, plys, games }) => {
         const [ date, time, mapstr ] = log.split('-')
         const [ map, ext ] = mapstr.split('.')
 
-        logselect.add(new Option(`${date} ${time.replace('.', ':')} ${map}`, log));
+        logselect.add(new Option(`${date} ${time.replace('.', ':')} ${map} [${plys}]`, log));
 
         games.forEach(game => {
             const gameOpt = new Option(`└ ${game.name}`, log)

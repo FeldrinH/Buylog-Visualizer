@@ -226,6 +226,37 @@ export default class DashboardManager {
             }
         })
 
+        Charts.addBar(document.querySelector("#streaks"), {
+            series: [
+                {
+                    name: 'Killstreak',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.killstreak
+                    }))
+                },
+                {
+                    name: 'Deathstreak',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.deathstreak
+                    }))
+                }
+            ],
+            colors: ['#00ff00', '#ff0000'],
+            title: {
+                text: 'Max killstreak and deathstreak'
+            },
+            chart: {
+                height: `${100 * this.data.playerlist.length}px`
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true
+                }
+            }
+        })
+
         Charts.addBar(document.querySelector("#moneybreakdown"), {
             series: [
                 {
@@ -416,7 +447,7 @@ export default class DashboardManager {
         }))
         const maxY = conflictBreakdowns.reduce((acc, val) => Math.max(acc, val.breakdown.reduce((acc, val) => Math.max(acc, val.wins + val.losses), 0)), 0)
 
-/*      Charts.addChartSeries(document.querySelector("#matchups"), document.querySelector("#radartemplate"), conflictBreakdowns, (element, { player, breakdown }) => {
+/*       Charts.addChartSeries(document.querySelector("#matchups"), document.querySelector("#radartemplate"), conflictBreakdowns, (element, { player, breakdown }) => {
             Charts.addChart(element, {
                 series: [
                     {
@@ -449,8 +480,8 @@ export default class DashboardManager {
                     max: maxY
                 }
             })
-        })
- */
+        }) */
+ 
         if (this.data.filteredlog.some(e => e.category === 'city')) {
             options = {
                 series: ['Red', 'Blue'].map(team => ({

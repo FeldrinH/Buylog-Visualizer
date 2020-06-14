@@ -101,10 +101,33 @@ export function conflictBreakdown(eventlist, player) {
     })).sort((a,b) => a.opponent.localeCompare(b.opponent))
 }
 
+export function maxStreak(eventlist, player, streakevent, endevent) {
+    let maxstreak = 0
+    let curstreak = 0
+    for (const e of eventlist) {
+        if (e.player === player) {
+            if (e.type === streakevent) {
+                curstreak += 1
+            } else if (e.type === endevent) {
+                if (curstreak > maxstreak) {
+                    maxstreak = curstreak
+                }
+                curstreak = 0
+            }
+        }
+    }
+    if (curstreak > maxstreak) {
+        maxstreak = curstreak
+    }
+    return maxstreak
+}
+
 export function killsBreakdown(eventlist, playerlist) {
     return playerlist.map(player => {
         const kills = eventlist.count(e => e.type === 'kill' && e.player === player)
         const deaths = eventlist.count(e => e.type === 'death' && e.player === player)
+        const killstreak = maxStreak(eventlist, player, 'kill', 'death')
+        const deathstreak = maxStreak(eventlist, player, 'death', 'kill')
         const moneyspent = -eventlist.filter(e => e.category === 'buy' && e.player === player).reduce((acc, e) => acc + e.deltamoney, 0)
         const moneylost = -eventlist.filter(e => e.category === 'death' && e.player === player).reduce((acc, e) => acc + e.deltamoney, 0)
         const moneybailed = eventlist.filter(e => e.category === 'bailout' && e.player === player).reduce((acc, e) => acc + e.deltamoney, 0)
@@ -114,6 +137,8 @@ export function killsBreakdown(eventlist, playerlist) {
             kills: kills,
             deaths: deaths,
             kdr: Util.round(kills / deaths, 2),
+            killstreak: killstreak,
+            deathstreak: deathstreak,
             moneyspent: moneyspent,
             moneylost: moneylost,
             moneymade: moneymade,
