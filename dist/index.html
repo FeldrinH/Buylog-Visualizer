@@ -20,11 +20,14 @@
         <div id="main"></div>
 
         <template id="maintemplate">
+            <div id="keyvaluetexts" class="widechart"></div>
+
             <div id="statechart" class="widechart"></div>
             
             <div class="multichartcontainer">
                 <div id="killsdeaths" class="barsplit"></div>
                 <div id="kdr" class="barsplit"></div>
+                <div id="streaks" class="barsplit"></div>
                 <div id="moneybreakdown" class="barsplit"></div>
             </div>
             
@@ -39,6 +42,12 @@
             <div id="teamtimes" class="widechart"></div>
         </template>
         
+        <template id="keyvaluetexttemplate">
+            <span class="keytext"></span>
+            <span class="valuetext"></span>
+            <p></p>
+        </template>
+
         <template id="radartemplate">
             <div class="multichartelement"></div>
         </template>
