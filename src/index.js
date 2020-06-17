@@ -40,7 +40,7 @@ function initInputs() {
 
     loglist.forEach(({ log, plys, games }) => {
         const [ date, time, mapstr ] = log.split('-')
-        const [ map, ext ] = mapstr.split('.')
+        const [ map ] = mapstr.split('.')
 
         logselect.add(new Option(`${date} ${time.replace('.', ':')} ${map} [${plys}]`, log));
 

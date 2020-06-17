@@ -12,6 +12,14 @@ export function setupDefaults() {
     }  
 }
 
+export function addKeyValueText(rootelement, template, keytext, valuetext) {
+    const newobj = template.content.cloneNode(true)
+    newobj.querySelector(".keytext").textContent = keytext
+    newobj.querySelector(".valuetext").textContent = valuetext
+    rootelement.appendChild(newobj)
+    //return newobj
+}
+
 export function addChartSeries(rootelement, template, itemlist, addChartFunc) {
     const templateobj = template.content.firstElementChild
 

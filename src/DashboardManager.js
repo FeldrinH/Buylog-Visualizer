@@ -130,10 +130,25 @@ export default class DashboardManager {
         const start = this.getValidStart()
         const end = this.getValidEnd()
         this.data.filteredlog = this.data.log.filter(e => e.time >= start && e.time <= end)
+        this.data.filteredduration = end - start
     }
 
     renderCharts() {
         const weaponPaletteGenerator = Util.getLoopingPaletteGenerator()
+
+        const textroot = document.querySelector("#keyvaluetexts")
+        const textemplate = document.querySelector("#keyvaluetexttemplate")
+
+        const [ date, time, mapstr ] = this.filename.split('-')
+        const [ map ] = mapstr.split('.')
+        Charts.addKeyValueText(textroot, textemplate, "Map:", map)
+        Charts.addKeyValueText(textroot, textemplate, "Start time:", moment(`${date} ${time}`, 'YYYY.MM.DD HH.mm').format('dddd, MMMM Do YYYY, HH:mm'))
+        Charts.addKeyValueText(textroot, textemplate, "Total players:", this.data.playerlist.length)
+        Charts.addKeyValueText(textroot, textemplate, "Max concurrent players:", Helper.maxConcurrent(this.data.filteredlog))
+        if (this.data.validtime) {
+            Charts.addKeyValueText(textroot, textemplate, "Average kills per minute:", Util.round(this.data.filteredlog.count(e => e.type === 'kill') * 60 / this.data.filteredduration, 1))
+            Charts.addKeyValueText(textroot, textemplate, "Average buys per minute:", Util.round(this.data.filteredlog.count(e => e.category === 'buy' && e.type !== 'buy-ammo') * 60 / this.data.filteredduration, 1))
+        }
 
         Charts.setupDefaults()  
     

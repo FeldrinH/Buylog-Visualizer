@@ -101,6 +101,24 @@ export function conflictBreakdown(eventlist, player) {
     })).sort((a,b) => a.opponent.localeCompare(b.opponent))
 }
 
+export function maxConcurrent(eventlist) {
+    let maxcount = 0
+    let curcount = 0
+    for (const e of eventlist) {
+        if (e.category === 'joinleave') {
+            if (e.type === 'join' || e.type === 'afk-leave') {
+                curcount += 1
+            } else if (e.type === 'leave' || e.type === 'afk-enter') {
+                curcount -= 1
+            }
+            if (curcount > maxcount) {
+                maxcount = curcount
+            }
+        }
+    }
+    return maxcount
+}
+
 export function maxStreak(eventlist, player, streakevent, endevent) {
     let maxstreak = 0
     let curstreak = 0
