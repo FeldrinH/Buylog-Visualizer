@@ -36,12 +36,12 @@ export function round(number: number, decimals: number) {
 
 // isObject() and extend() taken from ApexCharts /utils/Utils.js (https://github.com/apexcharts/apexcharts.js/blob/master/src/utils/Utils.js) and optimized for a more restricted use case
 
-function isObject(item) {
-    return ( item && typeof item === 'object' && !Array.isArray(item) && item != null )   
+function isObject(item: any) {
+    return item && typeof item === 'object' && !Array.isArray(item) && item != null
 }
 
 // credit: http://stackoverflow.com/questions/27936772/deep-object-merging-in-es6-es7#answer-34749873
-export function extend(target, source) {
+export function extend(target: any, source: any) {
     let output = target; //Object.assign({}, target)
     if (isObject(target) && isObject(source)) {
         Object.keys(source).forEach((key) => {
