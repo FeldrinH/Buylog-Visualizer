@@ -1,11 +1,11 @@
 import loglist from './loglist'
 import DashboardManager from './DashboardManager';
 
-const logselect = document.querySelector('#logselect') as HTMLSelectElement
-const startbound = document.querySelector('#start') as HTMLInputElement
-const endbound = document.querySelector('#end') as HTMLInputElement
-const meta = document.querySelector('#meta') as HTMLInputElement
-const updatebutton = document.querySelector('#updatebutton') as HTMLButtonElement
+const logselect = <HTMLSelectElement>document.querySelector('#logselect')
+const startbound = <HTMLInputElement>document.querySelector('#start')
+const endbound = <HTMLInputElement>document.querySelector('#end')
+const meta = <HTMLInputElement>document.querySelector('#meta')
+const updatebutton = <HTMLButtonElement>document.querySelector('#updatebutton')
 
 const dataManager = new DashboardManager()
 
@@ -56,8 +56,8 @@ function initInputs() {
     })
 
     logselect.value = dataManager.filename
-    startbound.value = dataManager.start as any
-    endbound.value = dataManager.end as any
+    startbound.value = <any>dataManager.start
+    endbound.value = <any>dataManager.end
     meta.value = dataManager.metaString
 
     updatebutton.addEventListener("click", doUpdate)

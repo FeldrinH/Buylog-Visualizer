@@ -22,7 +22,7 @@ function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: st
     }
 
     for (const e of eventlist) {
-        if ((e.category === 'joinleave' || e.category === 'team') && (e as GenericPlayerEvent).player === player) {
+        if ((e.category === 'joinleave' || e.category === 'team') && (<GenericPlayerEvent>e).player === player) {
             if (e.type === 'join') {
                 if (lastState === 'offline') {
                     appendEvent(e.time, 'active', null)
@@ -34,7 +34,7 @@ function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: st
             } else if (e.type === 'afk-leave') {
                 appendEvent(e.time, 'active', null)
             } else if (e.type === 'team-join') {
-                appendEvent(e.time, null, (e as TeamEvent).team)
+                appendEvent(e.time, null, (<TeamEvent>e).team)
             } else {
                 console.log(`Unknown player state change event '${e.type} (${e.category})'`)
             }
@@ -48,18 +48,18 @@ function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: st
 function addKillCount(eventlist: GenericEvent[], player: string) {
     let count = 0
     for (const e of eventlist) {
-        if (e.type === 'kill' && (e as KillEvent).player === player) {
+        if (e.type === 'kill' && (<KillEvent>e).player === player) {
             count += 1;
-            (e as KillEvent).killcount = count
+            (<KillEvent>e).killcount = count
         }        
     }
 }
 
 function determineStartTimestamp(data: ParsedLog) {
     if (data.log[0].type === 'logging-started') {
-        return (data.log[0] as GenericTimestampedEvent).timestamp
+        return (<GenericTimestampedEvent>data.log[0]).timestamp
     } else {
-        const timestampevent = data.log.find(e => (e as GenericTimestampedEvent).timestamp) as GenericTimestampedEvent
+        const timestampevent = <GenericTimestampedEvent>data.log.find(e => (<GenericTimestampedEvent>e).timestamp)
         if (timestampevent) {
             //console.log('WARNING: No logging started event. Logging start timestamp may be incorrect.')
             return timestampevent.timestamp
@@ -72,9 +72,9 @@ function determineStartTimestamp(data: ParsedLog) {
 
 function determineEndTimestamp(data: ParsedLog) {
     if (data.log[data.log.length - 1].type === 'logging-ended') {
-        return (data.log[data.log.length - 1] as GenericTimestampedEvent).timestamp
+        return (<GenericTimestampedEvent>data.log[data.log.length - 1]).timestamp
     } else {
-        const timestampevent = data.log.findLast(e => (e as GenericTimestampedEvent).timestamp as any) as GenericTimestampedEvent
+        const timestampevent = <GenericTimestampedEvent>data.log.findLast(e => (<GenericTimestampedEvent>e).timestamp) 
         if (timestampevent) {
             console.log('WARNING: No logging ended event. Logging end timestamp may be incorrect.')
             return timestampevent.timestamp
@@ -85,7 +85,7 @@ function determineEndTimestamp(data: ParsedLog) {
     }
 }
 
-export function parse(rawlog: any[][], parseFuncs: ((event: any[], data: ParsedLog) => GenericEvent)[], extrainfo, forcedetectplayers: boolean = false) {
+export function parse(rawlog: any[][], parseFuncs: ((event: any[], data: ParsedLog) => GenericEvent)[], extrainfo: boolean, forcedetectplayers: boolean = false) {
     const data = new ParsedLog()
     data.validtime = rawlog.length > 0 && Number.isFinite(Number(rawlog[0][0]))
 

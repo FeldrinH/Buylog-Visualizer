@@ -4,9 +4,9 @@ declare global {
     }
 
     interface Array<T> {
-        count(callbackfn: (value: T) => boolean): number
+        findLast(callbackfn: (value: T) => unknown): T
+        count(callbackfn: (value: T) => unknown): number
         sum(callbackfn: (value: T) => number): number
-        findLast(callbackfn: (value: T) => boolean): T
     }
 }
 

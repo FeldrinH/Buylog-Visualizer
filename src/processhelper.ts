@@ -1,4 +1,4 @@
-import type { GenericEvent, KillEvent, GenericPlayerEvent, GenericTransactionEvent, CityEvent, GenericWeaponEvent, JoinLeaveEvent, DeathEvent, BuyEvent, BailoutEvent, PlayerInfo } from './ParsedLog.js'
+import type { GenericEvent, KillEvent, GenericPlayerEvent, GenericTransactionEvent, CityEvent, GenericWeaponEvent, JoinLeaveEvent, DeathEvent, BuyEvent, BailoutEvent, PlayerInfo, DestroyEvent } from './ParsedLog.js'
 import './utilfuncs'
 import * as Util from './util'
 import * as Info from './metainfo'
@@ -37,11 +37,11 @@ export function eventPointSeries(eventlist: GenericEvent[], player: string) {
         event: GenericTransactionEvent
     }[] = []
     for (const e of eventlist) {
-        if ((e as GenericTransactionEvent).player === player && ((e.category === 'buy' && e.type !== 'buy-ammo') || e.category === 'kill')) {
+        if ((<GenericTransactionEvent>e).player === player && ((e.category === 'buy' && e.type !== 'buy-ammo') || e.category === 'kill')) {
             ret.push({
                 x: e.time,
-                y: Math.abs((e as GenericTransactionEvent).deltamoney),
-                event: e as GenericTransactionEvent
+                y: Math.abs((<GenericTransactionEvent>e).deltamoney),
+                event: <GenericTransactionEvent>e 
             })
         }
     }
@@ -55,11 +55,11 @@ export function cityTimeSeries(eventlist: GenericEvent[], team: string) {
         event: CityEvent
     }[] = []
     for (const e of eventlist) {
-        if (e.category === 'city' && (e as CityEvent).team === team) {
+        if (e.category === 'city' && (<CityEvent>e).team === team) {
             ret.push({
                 x: e.time,
-                y: (e as CityEvent).teamtime,
-                event: e as CityEvent
+                y: (<CityEvent>e).teamtime,
+                event: <CityEvent>e
             })
         }
     }
@@ -85,8 +85,8 @@ export function eventCountMovingAverageSeries(eventlist, player, start, end, dur
 export function weaponCounts(eventlist: GenericEvent[], player: string, eventtypes: Set<string>) {
     const counts = new Counter()
     for (const e of eventlist) {
-        if (((e as GenericPlayerEvent).player === player || player === null) && eventtypes.has(e.type)) {
-            const weapon = (e as GenericWeaponEvent).weapon || (e as GenericWeaponEvent).class
+        if (((<GenericPlayerEvent>e).player === player || player === null) && eventtypes.has(e.type)) {
+            const weapon = (<GenericWeaponEvent>e).weapon || (<GenericWeaponEvent>e).class
             counts.increment(weapon)
         }
     }
@@ -100,9 +100,9 @@ export function weaponCounts(eventlist: GenericEvent[], player: string, eventtyp
 export function conflictBreakdown(eventlist: GenericEvent[], player: string) {
     const matches = new MultiCounter()
     for (const e of eventlist) {
-        if (e.type === 'kill' && ((e as KillEvent).player === player || (e as KillEvent).victim === player)) {
-            const ourwin = (e as KillEvent).player === player
-            const opponent = ourwin ? (e as KillEvent).victim : (e as KillEvent).player
+        if (e.type === 'kill' && ((<KillEvent>e).player === player || (<KillEvent>e).victim === player)) {
+            const ourwin = (<KillEvent>e).player === player
+            const opponent = ourwin ? (<KillEvent>e).victim : (<KillEvent>e).player
             matches.increment(opponent, 'wins', ourwin ? 1 : 0)
             matches.increment(opponent, 'total')
         }
@@ -138,7 +138,7 @@ export function maxStreak(eventlist: GenericEvent[], player: string, streakevent
     let maxstreak = 0
     let curstreak = 0
     for (const e of eventlist) {
-        if ((e as GenericPlayerEvent).player === player) {
+        if ((<GenericPlayerEvent>e).player === player) {
             if (e.type === streakevent) {
                 curstreak += 1
             } else if (e.type === endevent) {
@@ -157,14 +157,14 @@ export function maxStreak(eventlist: GenericEvent[], player: string, streakevent
 
 export function killsBreakdown(eventlist: GenericEvent[], playerlist: string[]) {
     return playerlist.map(player => {
-        const kills = eventlist.count(e => e.type === 'kill' && (e as KillEvent).player === player)
-        const deaths = eventlist.count(e => e.type === 'death' && (e as DeathEvent).player === player)
+        const kills = eventlist.count(e => e.type === 'kill' && (<KillEvent>e).player === player)
+        const deaths = eventlist.count(e => e.type === 'death' && (<DeathEvent>e).player === player)
         const killstreak = maxStreak(eventlist, player, 'kill', 'death')
         const deathstreak = maxStreak(eventlist, player, 'death', 'kill')
-        const moneyspent = -eventlist.filter(e => e.category === 'buy' && (e as BuyEvent).player === player).sum(e => (e as BuyEvent).deltamoney)
-        const moneylost = -eventlist.filter(e => e.category === 'death' && (e as DeathEvent).player === player).sum(e => (e as DeathEvent).deltamoney)
-        const moneybailed = eventlist.filter(e => e.category === 'bailout' && (e as BailoutEvent).player === player).sum(e => (e as BailoutEvent).deltamoney)
-        const moneymade = eventlist.filter(e => (e.type === 'kill' || e.type === 'destroy') && (e as GenericTransactionEvent).player === player).sum(e => (e as GenericTransactionEvent).deltamoney)
+        const moneyspent = -eventlist.filter(e => e.category === 'buy' && (<BuyEvent>e).player === player).sum(e => (<BuyEvent>e).deltamoney)
+        const moneylost = -eventlist.filter(e => e.category === 'death' && (<DeathEvent>e).player === player).sum(e => (<DeathEvent>e).deltamoney)
+        const moneybailed = eventlist.filter(e => e.category === 'bailout' && (<BailoutEvent>e).player === player).sum(e => (<BailoutEvent>e).deltamoney)
+        const moneymade = eventlist.filter(e => (e.type === 'kill' || e.type === 'destroy') && (<KillEvent | DestroyEvent>e).player === player).sum(e => (<KillEvent | DestroyEvent>e).deltamoney)
         return {
             player: player,
             kills: kills,

@@ -16,7 +16,7 @@ export function setupDefaults() {
 }
 
 export function addKeyValueText(rootelement: Element, template: HTMLTemplateElement, keytext: string, valuetext: any) {
-    const newobj = template.content.cloneNode(true) as Element
+    const newobj = <Element>template.content.cloneNode(true)
     newobj.querySelector(".keytext").textContent = keytext
     newobj.querySelector(".valuetext").textContent = valuetext
     rootelement.appendChild(newobj)
@@ -27,7 +27,7 @@ export function addChartSeries<T>(rootelement: Element, template: HTMLTemplateEl
     const templateobj = template.content.firstElementChild
 
     itemlist.forEach(value => {
-        const newobj = templateobj.cloneNode(true) as Element
+        const newobj = <Element>templateobj.cloneNode(true)
         rootelement.appendChild(newobj)
         addChartFunc(newobj, value)
     })

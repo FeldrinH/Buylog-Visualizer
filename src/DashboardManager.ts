@@ -51,14 +51,14 @@ export default class DashboardManager {
     setStart(start: number) {
         if (!Object.is(start, this.start)) {
             this.start = start
-            this.params.set("start", isFinite(start) ? (start as any) : '')
+            this.params.set("start", isFinite(start) ? <any>start : '')
             this.needsUpdate = true
         }
     }
     setEnd(end: number) {
         if (!Object.is(end, this.end)) {
             this.end = end
-            this.params.set("end", isFinite(end) ? (end as any) : '')
+            this.params.set("end", isFinite(end) ? <any>end : '')
             this.needsUpdate = true
         }   
     }
@@ -146,7 +146,7 @@ export default class DashboardManager {
         const weaponPaletteGenerator = Util.getLoopingPaletteGenerator()
 
         const textroot = document.querySelector("#keyvaluetexts")
-        const textemplate = document.querySelector("#keyvaluetexttemplate") as HTMLTemplateElement
+        const textemplate = <HTMLTemplateElement>document.querySelector("#keyvaluetexttemplate")
 
         const [ date, time, mapstr ] = this.filename.split('-')
         const [ map ] = mapstr.split('.')
@@ -176,7 +176,7 @@ export default class DashboardManager {
             },
             tooltip: {
                 x: {
-                    formatter: val => val as any
+                    formatter: val => <any>val
                 },
                 y: {
                     formatter: (val, { w, seriesIndex, dataPointIndex }) => {
@@ -506,7 +506,7 @@ export default class DashboardManager {
         }) */
  
         if (this.data.filteredlog.some(e => e.category === 'city')) {
-            Charts.addChart(document.querySelector("#teamtimes"), {
+            Charts.addChart(document.querySelector("#teamtimes"), <any>{
                 series: ['Red', 'Blue'].map(team => ({
                     name: team,
                     data: Helper.cityTimeSeries(this.data.log, team)
@@ -541,7 +541,7 @@ export default class DashboardManager {
                     min: this.data.filteredstart,
                     max: this.data.filteredend
                 }
-            } as any)
+            })
         }
     }
 
@@ -550,7 +550,7 @@ export default class DashboardManager {
             Apex._chartInstances.slice().forEach(x => x.chart.destroy())   
         }
         document.querySelector("#main").querySelectorAll("*").forEach(n => n.remove())
-        const main = (document.querySelector("#maintemplate") as HTMLTemplateElement).content.cloneNode(true)
+        const main = (<HTMLTemplateElement>document.querySelector("#maintemplate")).content.cloneNode(true)
         document.querySelector("#main").appendChild(main)
     }
 }
