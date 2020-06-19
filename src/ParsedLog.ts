@@ -77,7 +77,7 @@ export interface DestroyEvent extends GenericTransactionEvent {
 export interface CityEvent extends GenericEvent {
     readonly category: 'city',
     readonly team: string,
-    readonly teamtime: string,
+    readonly teamtime: number,
     readonly player?: string
 }
 

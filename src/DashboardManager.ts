@@ -25,7 +25,7 @@ export default class DashboardManager {
 
     logdate: moment.Moment
     legacyparse: boolean
-    rawlog: any[]
+    rawlog: any[][]
     data: ParsedLog
     
     constructor() {
@@ -40,7 +40,7 @@ export default class DashboardManager {
         this.update()
     }
 
-    setFilename(filename) {
+    setFilename(filename: string) {
         if (filename !== this.filename) {
             this.filename = filename
             this.params.set("log", filename)
@@ -48,21 +48,21 @@ export default class DashboardManager {
             this.needsUpdate = true
         }
     }
-    setStart(start) {
+    setStart(start: number) {
         if (!Object.is(start, this.start)) {
             this.start = start
-            this.params.set("start", isFinite(start) ? start : '')
+            this.params.set("start", isFinite(start) ? (start as any) : '')
             this.needsUpdate = true
         }
     }
-    setEnd(end) {
+    setEnd(end: number) {
         if (!Object.is(end, this.end)) {
             this.end = end
-            this.params.set("end", isFinite(end) ? end : '')
+            this.params.set("end", isFinite(end) ? (end as any) : '')
             this.needsUpdate = true
         }   
     }
-    setMeta(metaString) {
+    setMeta(metaString: string) {
         if (metaString !== this.metaString) {
             this.metaString = metaString
             this.params.set("meta", metaString)
@@ -161,7 +161,7 @@ export default class DashboardManager {
 
         Charts.setupDefaults()  
     
-        let options = {
+        Charts.addChart(document.querySelector("#statechart"), {
             series: [{
                 data: Helper.stateTimelineSeries(this.data.players)
             }],
@@ -176,7 +176,7 @@ export default class DashboardManager {
             },
             tooltip: {
                 x: {
-                    formatter: (val) => val
+                    formatter: val => val as any
                 },
                 y: {
                     formatter: (val, { w, seriesIndex, dataPointIndex }) => {
@@ -190,8 +190,7 @@ export default class DashboardManager {
                 min: this.data.filteredstart,
                 max: this.data.filteredend
             }
-        };
-        new ApexCharts(document.querySelector("#statechart"), options).render();
+        });
 
         const killsBreakdown = Helper.killsBreakdown(this.data.filteredlog, this.data.playerlist).sort((a,b) => (b.kills - a.kills))
         //console.log(killsBreakdown)
