@@ -15,7 +15,7 @@ export const palette = [
 
 /* export function assumeType<T>(value: any): value is T {
     return true
-} */
+}
 
 export function isType<T extends GenericEvent>(event: GenericEvent, type: string): event is T {
     return event.type === type
@@ -23,7 +23,7 @@ export function isType<T extends GenericEvent>(event: GenericEvent, type: string
 
 export function isCategory<T extends GenericEvent>(event: GenericEvent, category: string): event is T {
     return event.category === category
-}
+}*/
 
 export function mod(n: number, m: number) {
     return ((n % m) + m) % m
