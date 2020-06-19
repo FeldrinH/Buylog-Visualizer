@@ -1,14 +1,13 @@
-import type { GenericEvent, GenericPlayerEvent } from './ParsedLog'
+import type { GenericEvent, GenericPlayerEvent, GenericTimestampedEvent, KillEvent, TeamEvent, StateBlock } from './ParsedLog'
 import ParsedLog from './ParsedLog'
-import './util'
 
-function generateStateBlocks(eventlist, endTimestamp, player) {
-    const ret = []
+function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: string) {
+    const ret: StateBlock[] = []
     
     let lastState = 'offline'
     let lastTeam = 'Unassigned'
     let lastTime = 0
-    const appendEvent = (curTime, curState, curTeam) => {
+    const appendEvent = (curTime: number, curState: string | null, curTeam: string | null) => {
         if (lastState !== 'offline') {
             ret.push({
                 start: lastTime,
@@ -22,22 +21,22 @@ function generateStateBlocks(eventlist, endTimestamp, player) {
         lastState = curState || lastState
     }
 
-    for (const event of eventlist) {
-        if (event.player === player && (event.category === 'joinleave' || event.category === 'team')) {
-            if (event.type === 'join') {
+    for (const e of eventlist) {
+        if ((e.category === 'joinleave' || e.category === 'team') && (e as GenericPlayerEvent).player === player) {
+            if (e.type === 'join') {
                 if (lastState === 'offline') {
-                    appendEvent(event.time, 'active', null)
+                    appendEvent(e.time, 'active', null)
                 }
-            } else if (event.type === 'leave') {
-                appendEvent(event.time, 'offline', null)
-            } else if (event.type === 'afk-enter') {
-                appendEvent(event.time, 'afk', null)
-            } else if (event.type === 'afk-leave') {
-                appendEvent(event.time, 'active', null)
-            } else if (event.type === 'team-join') {
-                appendEvent(event.time, null, event.team)
+            } else if (e.type === 'leave') {
+                appendEvent(e.time, 'offline', null)
+            } else if (e.type === 'afk-enter') {
+                appendEvent(e.time, 'afk', null)
+            } else if (e.type === 'afk-leave') {
+                appendEvent(e.time, 'active', null)
+            } else if (e.type === 'team-join') {
+                appendEvent(e.time, null, (e as TeamEvent).team)
             } else {
-                console.log(`Unknown player state change event '${event.type} (${event.category})'`)
+                console.log(`Unknown player state change event '${e.type} (${e.category})'`)
             }
         }
     }
@@ -46,21 +45,21 @@ function generateStateBlocks(eventlist, endTimestamp, player) {
     return ret
 }
 
-function addKillCount(eventlist, player) {
+function addKillCount(eventlist: GenericEvent[], player: string) {
     let count = 0
-    for (const event of eventlist) {
-        if (event.type === 'kill' && event.player === player) {
-            count += 1
-            event.killcount = count
+    for (const e of eventlist) {
+        if (e.type === 'kill' && (e as KillEvent).player === player) {
+            count += 1;
+            (e as KillEvent).killcount = count
         }        
     }
 }
 
-function determineStartTimestamp(data) {
+function determineStartTimestamp(data: ParsedLog) {
     if (data.log[0].type === 'logging-started') {
-        return data.log[0].timestamp
+        return (data.log[0] as GenericTimestampedEvent).timestamp
     } else {
-        const timestampevent = data.log.find(e => e.timestamp)
+        const timestampevent = data.log.find(e => (e as GenericTimestampedEvent).timestamp) as GenericTimestampedEvent
         if (timestampevent) {
             //console.log('WARNING: No logging started event. Logging start timestamp may be incorrect.')
             return timestampevent.timestamp
@@ -71,11 +70,11 @@ function determineStartTimestamp(data) {
     }
 }
 
-function determineEndTimestamp(data) {
+function determineEndTimestamp(data: ParsedLog) {
     if (data.log[data.log.length - 1].type === 'logging-ended') {
-        return data.log[data.log.length - 1].timestamp
+        return (data.log[data.log.length - 1] as GenericTimestampedEvent).timestamp
     } else {
-        const timestampevent = data.log.findLast(e => e.timestamp)
+        const timestampevent = data.log.findLast(e => (e as GenericTimestampedEvent).timestamp as any) as GenericTimestampedEvent
         if (timestampevent) {
             console.log('WARNING: No logging ended event. Logging end timestamp may be incorrect.')
             return timestampevent.timestamp

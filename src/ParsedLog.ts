@@ -1,10 +1,17 @@
 import type moment from 'moment'
 
+export interface StateBlock {
+    start: number,
+    end: number,
+    state: string,
+    team: string
+}
+
 export interface PlayerInfo {
     readonly id: string,
     name?: string,
     steamid?: string,
-    stateblocks?: any[]
+    stateblocks?: StateBlock[]
 }
 
 export interface GenericEvent {
@@ -35,7 +42,8 @@ export interface GenericWeaponEvent extends GenericEvent {
 export interface KillEvent extends GenericTransactionEvent {
     readonly category: 'kill',
     readonly victim: string,
-    readonly weapon: string
+    readonly weapon: string,
+    killcount?: number
 }
 
 export interface DeathEvent extends GenericTransactionEvent {
