@@ -1,5 +1,6 @@
 dist/logs
 dist/main.js
 src/loglist.js
+logcounts.js
 node_modules
 *.tsv
