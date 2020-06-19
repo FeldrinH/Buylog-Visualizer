@@ -1,11 +1,14 @@
-import loglist from './loglist'
-import DashboardManager from './DashboardManager';
+import loglist from './loglist.js'
+import DashboardManager from './DashboardManager.js';
 
-const logselect = document.querySelector('#logselect')
-const startbound = document.querySelector('#start')
-const endbound = document.querySelector('#end')
-const meta = document.querySelector('#meta')
-const updatebutton = document.querySelector('#updatebutton')
+const logselect = document.querySelector('#logselect') as HTMLSelectElement
+const startbound = document.querySelector('#start') as HTMLInputElement
+const endbound = document.querySelector('#end') as HTMLInputElement
+const meta = document.querySelector('#meta') as HTMLInputElement
+const updatebutton = document.querySelector('#updatebutton') as HTMLButtonElement
+
+declare var dataManager: DashboardManager
+dataManager = new DashboardManager()
 
 function doUpdate() {
     dataManager.setFilename(logselect.value)
@@ -54,18 +57,13 @@ function initInputs() {
     })
 
     logselect.value = dataManager.filename
-    startbound.value = dataManager.start
-    endbound.value = dataManager.end
+    startbound.value = dataManager.start as any
+    endbound.value = dataManager.end as any
     meta.value = dataManager.metaString
 
     updatebutton.addEventListener("click", doUpdate)
     logselect.addEventListener("change", doGameUpdate)
 }
 
-function execute() {
-    window.dataManager = new DashboardManager()
+initInputs()
 
-    initInputs()
-}
-
-execute()

@@ -1,3 +1,5 @@
+import type { GenericEvent, GenericPlayerEvent } from './ParsedLog.js'
+import ParsedLog from './ParsedLog.js'
 import './util.js'
 
 function generateStateBlocks(eventlist, endTimestamp, player) {
@@ -84,10 +86,8 @@ function determineEndTimestamp(data) {
     }
 }
 
-export function parse(rawlog, parseFuncs, extrainfo, forcedetectplayers = false) {
-    const data = {}
-    data.log = []
-    data.players = new Map()
+export function parse(rawlog: any[][], parseFuncs: ((event: any[], data: ParsedLog) => GenericEvent)[], extrainfo, forcedetectplayers: boolean = false) {
+    const data = new ParsedLog()
     data.validtime = rawlog.length > 0 && Number.isFinite(Number(rawlog[0][0]))
 
     let index = 0
@@ -105,13 +105,13 @@ export function parse(rawlog, parseFuncs, extrainfo, forcedetectplayers = false)
         index += 1
     }
 
-    data.starttime = data.log[0].time
-    data.endtime = data.log[data.log.length - 1].time
+    data.start = data.log[0].time
+    data.end = data.log[data.log.length - 1].time
     data.starttimestamp = determineStartTimestamp(data)
     data.endtimestamp = determineEndTimestamp(data)
 
     if (data.players.size === 0 || forcedetectplayers) {
-        data.log.forEach(e => {
+        data.log.forEach((e: GenericPlayerEvent) => {
             if (e.player && !data.players.has(e.player)) {
                 data.players.set(e.player, {
                     id: e.player

@@ -1,7 +1,9 @@
-import * as Util from './util'
-import * as Info from './metainfo'
-import Counter from './Counter'
-import MultiCounter from './MultiCounter'
+import * as Util from './util.js'
+import './utilfuncs.js'
+import * as Info from './metainfo.js'
+import Counter from './Counter.js'
+import MultiCounter from './MultiCounter.js'
+import type { GenericEvent, KillEvent, GenericPlayerEvent, GenericTransactionEvent, CityEvent, GenericWeaponEvent, JoinLeaveEvent } from './ParsedLog.js'
 
 export function stateTimelineSeries(players) {
     const ret = []
@@ -22,13 +24,13 @@ export function stateTimelineSeries(players) {
     return ret
 }
 
-export function eventPointSeries(eventlist, player) {
+export function eventPointSeries(eventlist: (GenericEvent | GenericTransactionEvent)[], player: string) {
     const ret = []
     for (const e of eventlist) {
-        if (e.player === player && ((e.category === 'buy' && e.type !== 'buy-ammo') || e.category === 'kill')) {
+        if ((e as GenericTransactionEvent).player === player && ((e.category === 'buy' && e.type !== 'buy-ammo') || e.category === 'kill')) {
             ret.push({
                 x: e.time,
-                y: Math.abs(e.deltamoney),
+                y: Math.abs((e as GenericTransactionEvent).deltamoney),
                 event: e
             })
         }
@@ -36,13 +38,13 @@ export function eventPointSeries(eventlist, player) {
     return ret
 }
 
-export function cityTimeSeries(eventlist, team) {
+export function cityTimeSeries(eventlist: (GenericEvent | CityEvent)[], team: string) {
     const ret = []
     for (const e of eventlist) {
-        if (e.category === 'city' && e.team === team) {
+        if (e.category === 'city' && (e as CityEvent).team === team) {
             ret.push({
                 x: e.time,
-                y: e.teamtime,
+                y: (e as CityEvent).teamtime,
                 event: e
             })
         }
@@ -66,11 +68,11 @@ export function eventCountMovingAverageSeries(eventlist, player, start, end, dur
     return ret
 }
 
-export function weaponCounts(eventlist, player, eventtypes) {
+export function weaponCounts(eventlist: (GenericEvent | (GenericWeaponEvent & GenericPlayerEvent))[], player, eventtypes: Set<string>) {
     const counts = new Counter()
     for (const e of eventlist) {
-        if ((e.player === player || player === null) && eventtypes.has(e.type)) {
-            const weapon = e.weapon || e.class
+        if (((e as GenericPlayerEvent).player === player || player === null) && eventtypes.has(e.type)) {
+            const weapon = (e as GenericWeaponEvent).weapon || (e as GenericWeaponEvent).class
             counts.increment(weapon)
         }
     }
@@ -81,13 +83,12 @@ export function weaponCounts(eventlist, player, eventtypes) {
     })).sort((a,b) => a.weapon.localeCompare(b.weapon))
 }
 
-export function conflictBreakdown(eventlist, player) {
-    const data = []
+export function conflictBreakdown(eventlist: (GenericEvent | KillEvent)[], player) {
     const matches = new MultiCounter()
     for (const e of eventlist) {
-        if (e.type === 'kill' && (e.player === player || e.victim === player)) {
-            const ourwin = e.player === player
-            const opponent = ourwin ? e.victim : e.player
+        if (e.type === 'kill' && ((e as KillEvent).player === player || (e as KillEvent).victim === player)) {
+            const ourwin = (e as KillEvent).player === player
+            const opponent = ourwin ? (e as KillEvent).victim : (e as KillEvent).player
             matches.increment(opponent, 'wins', ourwin ? 1 : 0)
             matches.increment(opponent, 'total')
         }
@@ -101,7 +102,7 @@ export function conflictBreakdown(eventlist, player) {
     })).sort((a,b) => a.opponent.localeCompare(b.opponent))
 }
 
-export function maxConcurrent(eventlist) {
+export function maxConcurrent(eventlist: (GenericEvent | JoinLeaveEvent)[]) {
     let maxcount = 0
     let curcount = 0
     for (const e of eventlist) {

@@ -1,5 +1,3 @@
-import * as Util from './util'
-
 const playerinfo = {
     "FeldrinH": {
         "color": "#ffc107"

@@ -5,13 +5,15 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@vanillaes/csv": "^2.1.2",
     "apexcharts": "^3.19.2",
     "csv-parse": "^4.10.1",
     "loess": "^1.3.5",
     "moment": "^2.26.0"
   },
   "devDependencies": {
+    "ts-loader": "^7.0.5",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0",

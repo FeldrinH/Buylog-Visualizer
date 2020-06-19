@@ -1,15 +1,33 @@
 import parse from 'csv-parse/lib/sync.js'
 import ApexCharts from 'apexcharts'
 import moment from 'moment'
-import * as Util from './util'
-import * as Info from './metainfo'
-import * as Parser from './parser'
-import * as Helper from './processhelper'
-import * as Charts from './charts'
-import { currentParseFuncs } from './currentparsefuncs'
-import { legacyFullParseFuncs } from './legacyparsefuncs'
+import './utilfuncs.js'
+import * as Util from './util.js'
+import * as Parser from './parser.js'
+import * as Helper from './processhelper.js'
+import * as Charts from './charts.js'
+import { currentParseFuncs } from './currentparsefuncs.js'
+import { legacyFullParseFuncs } from './legacyparsefuncs.js'
+import ParsedLog from './ParsedLog.js'
+
+declare var Apex: any
 
 export default class DashboardManager {
+    needsReload: boolean
+    needsUpdate: boolean
+
+    params: URLSearchParams
+    filename: string
+    start: number
+    end: number
+    metaString: string
+    meta: any
+
+    logdate: moment.Moment
+    legacyparse: boolean
+    rawlog: any[]
+    data: ParsedLog
+    
     constructor() {
         this.needsReload = true
         this.needsUpdate = true
@@ -52,30 +70,24 @@ export default class DashboardManager {
         }   
     }
 
-    parseMeta(metaString) {
-        const ret = {}
+    parseMeta(metaString: string) {
+        const ret: any = {}
         if (metaString) {
             metaString.split(',').forEach(pair => {
-                let [key, value] = pair.split(':', 2)
+                const [key, value] = pair.split(':', 2)
                 if (Number.isFinite(Number(value))) {
-                    value = Number(value)
+                    ret[key] = Number(value)
+                } else {
+                    ret[key] = value
                 }
-                ret[key] = value
             })
         }
         return ret
     }
 
-    parseLogDate(filename) {
-        const [ date, time, mapstr ] = filename.split('-')
+    parseLogDate(filename: string) {
+        const [ date, time ] = filename.split('-')
         return moment(`${date} ${time}`, 'YYYY.MM.DD HH.mm', true)
-    }
-
-    getValidStart() {
-        return isFinite(this.start) ? this.start : this.data.starttime
-    }
-    getValidEnd() {
-        return isFinite(this.end) ? this.end : this.data.endtime
     }
 
     async update() {
@@ -110,7 +122,7 @@ export default class DashboardManager {
         
         this.logdate = this.parseLogDate(this.filename)
         if (!this.logdate.isValid()) {
-            console.log(`WARNING: Invalid log date '${this.logdate._i}'`)
+            console.log(`WARNING: Invalid log date '${this.logdate.inspect()}'`)
         }
         this.legacyparse = this.logdate.year() <= 2019
         if (this.legacyparse) {
@@ -127,17 +139,14 @@ export default class DashboardManager {
     }
 
     filterData() {
-        const start = this.getValidStart()
-        const end = this.getValidEnd()
-        this.data.filteredlog = this.data.log.filter(e => e.time >= start && e.time <= end)
-        this.data.filteredduration = end - start
+        this.data.filter(isFinite(this.start) ? this.start : this.data.start, isFinite(this.end) ? this.end : this.data.end)
     }
 
     renderCharts() {
         const weaponPaletteGenerator = Util.getLoopingPaletteGenerator()
 
         const textroot = document.querySelector("#keyvaluetexts")
-        const textemplate = document.querySelector("#keyvaluetexttemplate")
+        const textemplate = document.querySelector("#keyvaluetexttemplate") as HTMLTemplateElement
 
         const [ date, time, mapstr ] = this.filename.split('-')
         const [ map ] = mapstr.split('.')
@@ -178,8 +187,8 @@ export default class DashboardManager {
             },
             xaxis: {
                 type: 'datetime',
-                min: this.getValidStart(),
-                max: this.getValidEnd()
+                min: this.data.filteredstart,
+                max: this.data.filteredend
             }
         };
         new ApexCharts(document.querySelector("#statechart"), options).render();
@@ -498,7 +507,7 @@ export default class DashboardManager {
         }) */
  
         if (this.data.filteredlog.some(e => e.category === 'city')) {
-            options = {
+            Charts.addChart(document.querySelector("#teamtimes"), {
                 series: ['Red', 'Blue'].map(team => ({
                     name: team,
                     data: Helper.cityTimeSeries(this.data.log, team)
@@ -530,11 +539,10 @@ export default class DashboardManager {
                 },
                 xaxis: {
                     type: 'numeric',
-                    min: this.getValidStart(),
-                    max: this.getValidEnd()
+                    min: this.data.filteredstart,
+                    max: this.data.filteredend
                 }
-            };
-            new ApexCharts(document.querySelector("#teamtimes"), options).render();
+            } as any)
         }
     }
 
@@ -543,7 +551,7 @@ export default class DashboardManager {
             Apex._chartInstances.slice().forEach(x => x.chart.destroy())   
         }
         document.querySelector("#main").querySelectorAll("*").forEach(n => n.remove())
-        const main = document.querySelector("#maintemplate").content.cloneNode(true)
+        const main = (document.querySelector("#maintemplate") as HTMLTemplateElement).content.cloneNode(true)
         document.querySelector("#main").appendChild(main)
     }
 }

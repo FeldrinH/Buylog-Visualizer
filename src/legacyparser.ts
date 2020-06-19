@@ -44,7 +44,7 @@ function generateStateBlocks(eventlist, player) {
     return ret
 }
 
-export function parse(rawlog, data) {
+export function parse(rawlog, data, parseFuncs) {
     data.log = []
     data.players = new Map()
 

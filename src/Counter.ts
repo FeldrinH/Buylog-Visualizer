@@ -1,34 +1,37 @@
 export default class Counter {
+    counts: Map<string, number>
+    total: number
+
     constructor() {
         this.counts = new Map()
         this.total = 0
     }
 
-    increment(key, increment = 1) {
+    increment(key: string, increment: number = 1) {
         this.counts.set(key, (this.counts.get(key) || 0) + increment)
         this.total += increment
     }
 
-    set(key, value) {
+    set(key: string, value: number) {
         this.total -= (this.counts.get(key) || 0)
         this.total += value
-        return this.counts.set(key, value)
+        this.counts.set(key, value)
     }
 
-    delete(key) {
+    delete(key: string) {
         this.total -= (this.counts.get(key) || 0)
         return this.counts.delete(key)
     }
 
-    get(key) {
+    get(key: string) {
         return this.counts.get(key) || 0
     }
 
-    map(func) {
+    map<T>(func: (key: string, value: number) => T) {
         return this.counts.map(func)
     }
 
-    forEach(func) {
-        return this.counts.forEach(func)
+    forEach(func: (value: number, key: string, map: Map<string, number>) => void) {
+        this.counts.forEach(func)
     }
 }

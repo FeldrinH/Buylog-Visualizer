@@ -1,52 +1,31 @@
-import palette from './palette.js'
+import type { GenericEvent } from "./ParsedLog.js"
 
-Map.prototype.map = function(func) {
-    const ret = []
-    this.forEach((value, key) => {
-        ret.push(func(key, value))
-    })
-    return ret
+export const palette = [
+    '#ff0029', '#377eb8', '#66a61e', '#984ea3', '#00d2d5', '#ff7f00', '#af8d00',
+    '#7f80cd', '#b3e900', '#c42e60', '#a65628', '#f781bf', '#8dd3c7', '#bebada',
+    '#fb8072', '#80b1d3', '#fdb462', '#fccde5', '#bc80bd', '#ffed6f', '#c4eaff',
+    '#cf8c00', '#1b9e77', '#d95f02', '#e7298a', '#e6ab02', '#a6761d', '#0097ff',
+    '#00d067', '#737373',
+    '#f43600', '#4ba93b', '#5779bb', '#927acc', '#97ee3f', '#bf3947', '#9f5b00',
+    '#f48758', '#8caed6', '#f2b94f', '#eff26e', '#e43872', '#d9b100', '#9d7a00',
+    '#698cff', '#d9d9d9', '#00d27e', '#d06800', '#009f82', '#c49200', '#cbe8ff',
+    '#fecddf', '#c27eb6', '#8cd2ce', '#c4b8d9', '#f883b0', '#a49100', '#f48800',
+    '#27d0df', '#a04a9b'
+]
+
+export function isType<T extends GenericEvent>(event: GenericEvent, type: string): event is T {
+    return event.type === type
 }
 
-Array.prototype.count = function(func) {
-    let count = 0
-    for (const elem of this) {
-        if (func(elem)) {
-            count += 1
-        }
-    }
-    return count
+export function isCategory<T extends GenericEvent>(event: GenericEvent, category: string): event is T {
+    return event.category === category
 }
 
-Array.prototype.sum = function(func) {
-    let total = 0
-    for (const elem of this) {
-        total += func(elem)
-    }
-    return total
-}
-
-Array.prototype.findLast = function(func) {
-    for (let i = this.length - 1; i >=0; i--) {
-        if (func(this[i])) {
-            return this[i]
-        }
-    }
-    return undefined
-}
-
-/* Map.prototype.getset = function(key, defaultval) {
-    if (!this.has(key)) {
-        this.set(key, defaultval)
-    }
-    return this.get(key)
-} */
-
-export function mod(n, m) {
+export function mod(n: number, m: number) {
     return ((n % m) + m) % m
 }
 
-export function round(number, decimals) {
+export function round(number: number, decimals: number) {
     const exp = 10 ** decimals
     return Math.round((number + Number.EPSILON) * exp) / exp
 }
@@ -120,15 +99,15 @@ export function findInRange(iterlist, start, end, isbackwards, filter) {
 }
 
 export function getLoopingPaletteGenerator() {
-    const cache = new Map()
+    const cache = new Map<string, string>()
     let index = 0
-    return (str) => {
-        let ret = cache.get(str)
+    return (id: string) => {
+        let ret = cache.get(id)
         if (ret) {
             return ret
         }
         ret = palette[index % palette.length]
-        cache.set(str, ret)
+        cache.set(id, ret)
         index += 1
         return ret
     }

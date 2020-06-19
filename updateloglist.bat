@@ -1,1 +1,1 @@
-node compileloglist.js
+node --loader ts-node/esm.mjs ./compileloglist.ts

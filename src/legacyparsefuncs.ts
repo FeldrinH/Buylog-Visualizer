@@ -1,6 +1,8 @@
+import type { JoinLeaveEvent, GenericTimestampedEvent, LoggingEvent } from './ParsedLog.js'
+import type ParsedLog from './ParsedLog.js'
 import { ParseTimestamp, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallback } from './currentparsefuncs.js'
 
-export function ParseTimestampedHumanReadable(event, data) {
+export function ParseTimestampedHumanReadable(event: any[], data: ParsedLog): GenericTimestampedEvent | JoinLeaveEvent {
     if (!event[1].endsWith('--')) { return null }
 
     const parse = event[1].split('--')
@@ -47,7 +49,7 @@ export function ParseTimestampedHumanReadable(event, data) {
     }
 }
 
-export function ParseLoggingStandardized(event, data) {
+export function ParseLoggingStandardized(event: any[], data: ParsedLog): LoggingEvent {
     if (!event[1].startsWith('logging')) { return null }
 
     let expectedTimestamp = ParseTimestamp(event[2])
@@ -68,7 +70,7 @@ export function ParseLoggingStandardized(event, data) {
     }
 }
 
-export function ParseJoinLeaveStandardized(event, data) {
+export function ParseJoinLeaveStandardized(event: any[], data: ParsedLog): JoinLeaveEvent {
     if (event[1] !== 'join' && event[1] !== 'leave' && !event[1].startsWith('afk')) { return null }
 
     let expectedTimestamp = ParseTimestamp(event[2])
