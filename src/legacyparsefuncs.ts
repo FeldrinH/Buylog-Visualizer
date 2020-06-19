@@ -1,6 +1,6 @@
-import type { JoinLeaveEvent, GenericTimestampedEvent, LoggingEvent } from './ParsedLog.js'
-import type ParsedLog from './ParsedLog.js'
-import { ParseTimestamp, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallback } from './currentparsefuncs.js'
+import type { JoinLeaveEvent, GenericTimestampedEvent, LoggingEvent } from './ParsedLog'
+import type ParsedLog from './ParsedLog'
+import { ParseTimestamp, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallback } from './currentparsefuncs'
 
 export function ParseTimestampedHumanReadable(event: any[], data: ParsedLog): GenericTimestampedEvent | JoinLeaveEvent {
     if (!event[1].endsWith('--')) { return null }

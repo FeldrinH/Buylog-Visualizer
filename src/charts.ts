@@ -1,6 +1,6 @@
 import type { ApexOptions } from 'apexcharts'
 import ApexCharts from 'apexcharts'
-import * as Util from './util.js'
+import * as Util from './util'
 
 declare var Apex: ApexOptions
 

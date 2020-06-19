@@ -1,6 +1,6 @@
-import type { GenericEvent, GenericPlayerEvent } from './ParsedLog.js'
-import ParsedLog from './ParsedLog.js'
-import './util.js'
+import type { GenericEvent, GenericPlayerEvent } from './ParsedLog'
+import ParsedLog from './ParsedLog'
+import './util'
 
 function generateStateBlocks(eventlist, endTimestamp, player) {
     const ret = []

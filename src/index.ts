@@ -1,5 +1,5 @@
-import loglist from './loglist.js'
-import DashboardManager from './DashboardManager.js';
+import loglist from './loglist'
+import DashboardManager from './DashboardManager';
 
 const logselect = document.querySelector('#logselect') as HTMLSelectElement
 const startbound = document.querySelector('#start') as HTMLInputElement
@@ -7,8 +7,7 @@ const endbound = document.querySelector('#end') as HTMLInputElement
 const meta = document.querySelector('#meta') as HTMLInputElement
 const updatebutton = document.querySelector('#updatebutton') as HTMLButtonElement
 
-declare var dataManager: DashboardManager
-dataManager = new DashboardManager()
+const dataManager = new DashboardManager()
 
 function doUpdate() {
     dataManager.setFilename(logselect.value)

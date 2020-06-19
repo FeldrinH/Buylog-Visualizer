@@ -1,14 +1,14 @@
 import parse from 'csv-parse/lib/sync.js'
 import ApexCharts from 'apexcharts'
 import moment from 'moment'
-import './utilfuncs.js'
-import * as Util from './util.js'
-import * as Parser from './parser.js'
-import * as Helper from './processhelper.js'
-import * as Charts from './charts.js'
-import { currentParseFuncs } from './currentparsefuncs.js'
-import { legacyFullParseFuncs } from './legacyparsefuncs.js'
-import ParsedLog from './ParsedLog.js'
+import './utilfuncs'
+import * as Util from './util'
+import * as Parser from './parser'
+import * as Helper from './processhelper'
+import * as Charts from './charts'
+import { currentParseFuncs } from './currentparsefuncs'
+import { legacyFullParseFuncs } from './legacyparsefuncs'
+import ParsedLog from './ParsedLog'
 
 declare var Apex: any
 

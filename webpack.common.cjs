@@ -3,7 +3,7 @@ module.exports = {
         main: './src/index.ts'
     },
     resolve: {
-        extensions: [".tsx", ".ts", ".js"]
+        extensions: [".ts", ".js"]
     },
     module: {
         rules: [

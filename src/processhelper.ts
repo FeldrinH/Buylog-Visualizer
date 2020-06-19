@@ -1,8 +1,8 @@
-import * as Util from './util.js'
-import './utilfuncs.js'
-import * as Info from './metainfo.js'
-import Counter from './Counter.js'
-import MultiCounter from './MultiCounter.js'
+import * as Util from './util'
+import './utilfuncs'
+import * as Info from './metainfo'
+import Counter from './Counter'
+import MultiCounter from './MultiCounter'
 import type { GenericEvent, KillEvent, GenericPlayerEvent, GenericTransactionEvent, CityEvent, GenericWeaponEvent, JoinLeaveEvent } from './ParsedLog.js'
 
 export function stateTimelineSeries(players) {

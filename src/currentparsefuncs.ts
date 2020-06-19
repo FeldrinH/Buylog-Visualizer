@@ -1,4 +1,4 @@
-import type { UnknownEvent, KillEvent, DeathEvent, JoinLeaveEvent, BuyEvent, BailoutEvent, DestroyEvent, CityEvent, TeamEvent, ResetEvent } from './ParsedLog.js'
+import type { UnknownEvent, KillEvent, DeathEvent, JoinLeaveEvent, BuyEvent, BailoutEvent, DestroyEvent, CityEvent, TeamEvent, ResetEvent } from './ParsedLog'
 import moment from 'moment'
 
 export function ParseTimestamp(str: string): moment.Moment {

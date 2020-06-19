@@ -1,4 +1,4 @@
-import './util.js'
+import './util'
 
 function generateStateBlocks(eventlist, player) {
     const ret = []

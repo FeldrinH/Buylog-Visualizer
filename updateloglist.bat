@@ -1,1 +1,1 @@
-node --loader ts-node/esm.mjs ./compileloglist.ts
+node --loader ts-node/esm.mjs --experimental-specifier-resolution=node ./compileloglist.ts 
