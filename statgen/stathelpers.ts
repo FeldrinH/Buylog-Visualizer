@@ -1,3 +1,6 @@
+import type ParsedLog from '../src/ParsedLog'
+import type Counter from '../src/Counter'
+import type MultiCounter from '../src/MultiCounter'
 import * as fs from 'fs'
 
 export const validEmptyPlayers = new Set(['2020.05.21-21.48-wasteland_environment_alpha.txt', '2020.05.21-22.00-rp_clazfort.txt'])
@@ -8,7 +11,12 @@ export const locations = [
     'C:\\SteamCMD\\steamapps\\common\\GarrysModDS\\garrysmod\\data\\buylogs'
 ]
 
-export const versionedMaps = [
+interface MergeSpec {
+    is: (id: string) => boolean,
+    name: string
+}
+
+export const versionedMaps: MergeSpec[] = [
     { is: map => map.toLowerCase().includes('monk'), name: 'gm_monk' },
     { is: map => map.toLowerCase().includes('pit') || map === 'gm_oilworks', name: 'gm_pit/gm_oilworks' }
 ]
@@ -18,7 +26,7 @@ const leidt = new Set(['Silvio', 'kräk'])
 const elias = new Set(['Wyolop', 'ElierWorks'])
 const eerik = new Set(['eerik.haamer', 'Ez Hammer'])
 const rauno = new Set(['User #2', 'marcusmaa', '9S', '(1)martIn1950', '(1)martin1950'])
-export const userAlts = [
+export const userAlts : MergeSpec[] = [
     { is: map => paul.has(map), name: 'Paul' },
     { is: map => leidt.has(map), name: 'Leidt' },
     { is: map => elias.has(map), name: 'Elias' },
@@ -27,6 +35,7 @@ export const userAlts = [
 ]
 
 export function forEachLogfile(func) {
+    //throw new Error('Deprecated. Iterate ../dist/logs folder.')
     for (const folder of locations) {
         for (const filename of fs.readdirSync(folder)) {
             func(filename, folder)
@@ -34,7 +43,7 @@ export function forEachLogfile(func) {
     }
 }
 
-export function isValidGame(rawlog, data, filename, folder) {
+export function isValidGame(rawlog: any[][], data: ParsedLog, filename: string, folder: string) {
     const playercount = data.playerlist.length
     if (playercount === 0) {
         if (!filename.includes('[0]')) {
@@ -55,7 +64,7 @@ export function isValidGame(rawlog, data, filename, folder) {
     }
 }
 
-export function parseMap(filename) {
+export function parseMap(filename: string) {
     if (filename.includes('-')) {
         const parse = filename.replace('.txt', '').split('-')
         return parse[2]
@@ -65,7 +74,7 @@ export function parseMap(filename) {
     }
 }
 
-export function altToMain(name) {
+export function altToMain(name: string) {
     for (const info of userAlts) {
         if (info.is(name)) {
             return `${info.name} (total)`
@@ -74,7 +83,7 @@ export function altToMain(name) {
     return name
 }
 
-export function mergeCounters(counter, mergeRules) {
+export function mergeCounters(counter: Counter, mergeRules: MergeSpec[]) {
     for (const mapinfo of mergeRules) {
         const mergedMaps = []
         let total = 0
@@ -90,7 +99,7 @@ export function mergeCounters(counter, mergeRules) {
     }
 }
 
-export function counterToTSV(counter) {
+export function counterToTSV(counter: Counter) {
     let out = ''
     counter.forEach((value, key) => {
         out += `${key}\t${value}\n`
@@ -98,7 +107,7 @@ export function counterToTSV(counter) {
     return out
 }
 
-export function mutiCounterToTSV(counter, valuekeys) {
+export function mutiCounterToTSV(counter: MultiCounter, valuekeys: string[]) {
     let out = ''
     counter.forEach((values, key) => {
         out += `${key}\t${valuekeys.map(k => (values.get(k) || 0)).join('\t')}\n`

@@ -1,11 +1,11 @@
-import '../src/util.js'
-import * as StatHelpers from './stathelpers.js'
-import MultiCounter from '../src/MultiCounter.js'
-import * as Parser from '../src/parser.js'
-import { ParseKill, ParseDeath } from '../src/currentparsefuncs.js'
-import { ParseJoinLeaveStandardized, ParseTimestampedHumanReadable, ParseLoggingStandardized } from '../src/legacyparsefuncs.js'
+import '../src/util'
+import * as StatHelpers from './stathelpers'
+import MultiCounter from '../src/MultiCounter'
+import * as Parser from '../src/parser'
+import { ParseKill, ParseDeath } from '../src/currentparsefuncs'
+import { ParseJoinLeaveStandardized, ParseTimestampedHumanReadable, ParseLoggingStandardized } from '../src/legacyparsefuncs'
 import parse from 'csv-parse/lib/sync.js'
-import * as fs from 'fs'
+import fs from 'fs'
 
 const parseFuncs = [ParseKill, ParseDeath, ParseJoinLeaveStandardized, ParseLoggingStandardized, ParseTimestampedHumanReadable]
 

@@ -1,96 +1,96 @@
 import type moment from 'moment'
 
 export interface PlayerInfo {
-    id: string,
+    readonly id: string,
     name?: string,
     steamid?: string,
     stateblocks?: any[]
 }
 
 export interface GenericEvent {
-    time: number,
-    type: string,
-    category: string
+    readonly time: number,
+    readonly type: string,
+    readonly category: string
 }
 
 export interface GenericTimestampedEvent extends GenericEvent {
-    timestamp: moment.Moment
+    readonly timestamp: moment.Moment
 }
 
 export interface GenericPlayerEvent extends GenericEvent {
-    player: string
+    readonly player: string
 }
 
 export interface GenericTransactionEvent extends GenericPlayerEvent {
-    player: string,
-    deltamoney: number,
-    money: number
+    readonly player: string,
+    readonly deltamoney: number,
+    readonly money: number
 }
 
 export interface GenericWeaponEvent extends GenericEvent {
-    weapon?: string,
-    class?: string
+    readonly weapon?: string,
+    readonly class?: string
 }
 
 export interface KillEvent extends GenericTransactionEvent {
-    category: 'kill',
-    victim: string,
-    weapon: string
+    readonly category: 'kill',
+    readonly victim: string,
+    readonly weapon: string
 }
 
 export interface DeathEvent extends GenericTransactionEvent {
-    category: 'death',
-    killer: string,
-    weapon: string
+    readonly category: 'death',
+    readonly killer: string,
+    readonly weapon: string
 }
 
 export interface JoinLeaveEvent extends GenericTimestampedEvent {
-    category: 'joinleave',
-    player: string,
-    name?: string,
-    steamid?: string
+    readonly category: 'joinleave',
+    readonly player: string,
+    readonly name?: string,
+    readonly steamid?: string
 }
 
 export interface BuyEvent extends GenericTransactionEvent {
-    category: 'buy',
-    class: string,
-    price: number
+    readonly category: 'buy',
+    readonly class: string,
+    readonly price: number
 }
 
 export interface BailoutEvent extends GenericTransactionEvent {
-    category: 'bailout'
+    readonly category: 'bailout'
 }
 
 export interface DestroyEvent extends GenericTransactionEvent {
-    category: 'destroy',
-    victim: string
+    readonly category: 'destroy',
+    readonly victim: string
 }
 
 export interface CityEvent extends GenericEvent {
-    category: 'city',
-    team: string,
-    teamtime: string,
-    player?: string
+    readonly category: 'city',
+    readonly team: string,
+    readonly teamtime: string,
+    readonly player?: string
 }
 
 export interface TeamEvent extends GenericEvent {
-    category: 'team',
-    player: string,
-    team: string
+    readonly category: 'team',
+    readonly player: string,
+    readonly team: string
 }
 
 export interface ResetEvent extends GenericEvent {
-    category: 'reset',
-    target: string
+    readonly category: 'reset',
+    readonly target: string
 }
 
 export interface LoggingEvent extends GenericTimestampedEvent {
-    category: 'logging'
+    readonly category: 'logging'
 }
 
 export interface UnknownEvent extends GenericEvent {
-    category: 'unknown',
-    data: any[]
+    readonly category: 'unknown',
+    readonly data: any[]
 }
 
 export default class ParsedLog {
