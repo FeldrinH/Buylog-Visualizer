@@ -158,14 +158,14 @@ export function maxStreak(eventlist: GenericEvent[], player: string, streakevent
 
 export function killsBreakdown(eventlist: GenericEvent[], playerlist: string[]) {
     return playerlist.map(player => {
-        const kills = eventlist.count(e => e.type === 'kill' && (<KillEvent>e).player === player)
-        const deaths = eventlist.count(e => e.category === 'death' && (<DeathEvent>e).player === player)
+        const kills = eventlist.count(e => e.type === 'kill' && assume<KillEvent>(e) && e.player === player)
+        const deaths = eventlist.count(e => e.category === 'death' && assume<DeathEvent>(e) && e.player === player)
         const killstreak = maxStreak(eventlist, player, 'kill', 'death')
         const deathstreak = maxStreak(eventlist, player, 'death', 'kill')
-        const moneyspent = -eventlist.sum(e => e.category === 'buy' && (<BuyEvent>e).player === player ? (<BuyEvent>e).deltamoney : 0)
-        const moneylost = -eventlist.sum(e => e.category === 'death' && (<DeathEvent>e).player === player ? (<DeathEvent>e).deltamoney : 0)
-        const moneybailed = eventlist.sum(e => e.category === 'bailout' && (<BailoutEvent>e).player === player ? (<BailoutEvent>e).deltamoney : 0)
-        const moneymade = eventlist.sum(e => (e.type === 'kill' || e.category === 'destroy') && (<KillEvent | DestroyEvent>e).player === player ? (<KillEvent | DestroyEvent>e).deltamoney : 0)
+        const moneyspent = -eventlist.sum(e => e.category === 'buy' && assume<BuyEvent>(e) && e.player === player ? e.deltamoney : 0)
+        const moneylost = -eventlist.sum(e => e.category === 'death' && assume<DeathEvent>(e) && e.player === player ? e.deltamoney : 0)
+        const moneybailed = eventlist.sum(e => e.category === 'bailout' && assume<BailoutEvent>(e) && e.player === player ? e.deltamoney : 0)
+        const moneymade = eventlist.sum(e => (e.type === 'kill' || e.category === 'destroy') && assume<KillEvent | DestroyEvent>(e) && e.player === player ? e.deltamoney : 0)
         return {
             player: player,
             kills: kills,

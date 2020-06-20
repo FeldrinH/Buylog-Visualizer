@@ -111,8 +111,8 @@ export function parse(rawlog: any[][], parseFuncs: ((event: any[], data: ParsedL
     data.endtimestamp = determineEndTimestamp(data)
 
     if (data.players.size === 0 || forcedetectplayers) {
-        data.log.forEach((e: GenericPlayerEvent) => {
-            if (e.player && !data.players.has(e.player)) {
+        data.log.forEach(e => {
+            if ((<GenericPlayerEvent>e).player && assume<GenericPlayerEvent>(e) && !data.players.has(e.player)) {
                 data.players.set(e.player, {
                     id: e.player
                 })
