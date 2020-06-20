@@ -13,6 +13,10 @@ export const palette = [
     '#27d0df', '#a04a9b'
 ]
 
+export function assume<T extends GenericEvent>(value: GenericEvent): value is T {
+    return true
+}
+
 /* export function assumeType<T>(value: any): value is T {
     return true
 }

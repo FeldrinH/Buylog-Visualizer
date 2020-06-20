@@ -1,5 +1,6 @@
+import type { GenericWeaponEvent } from './ParsedLog'
+import type ParsedLog from './ParsedLog'
 import parse from 'csv-parse/lib/sync.js'
-import ApexCharts from 'apexcharts'
 import moment from 'moment'
 import './utilfuncs'
 import * as Util from './util'
@@ -8,7 +9,6 @@ import * as Helper from './processhelper'
 import * as Charts from './charts'
 import { currentParseFuncs } from './currentparsefuncs'
 import { legacyFullParseFuncs } from './legacyparsefuncs'
-import ParsedLog from './ParsedLog'
 
 declare var Apex: any
 
@@ -369,8 +369,8 @@ export default class DashboardManager {
         new ApexCharts(document.querySelector("#eventline"), options).render();*/
 
         // Global bie charts
-        const buyCounts = Helper.weaponCounts(this.data.filteredlog, null, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
-        const killCounts = Helper.weaponCounts(this.data.filteredlog, null, new Set(['kill']))
+        const buyCounts = Helper.weaponCounts(this.data.filteredlog, null, (e): e is GenericWeaponEvent => e.category === 'buy' && e.type !== 'buy-ammo')
+        const killCounts = Helper.weaponCounts(this.data.filteredlog, null, (e): e is GenericWeaponEvent => e.type === 'kill')
         Charts.addPie(document.querySelector("#allbuyoverview .lefthalf"), {
             series: buyCounts.map(val => val.count),
             labels: buyCounts.map(val => val.weapon),
@@ -410,8 +410,8 @@ export default class DashboardManager {
 
         // Pie charts for per-player buy pie
         Charts.addChartSeries(document.querySelector("#buybreakdown"), document.querySelector("#pietemplate"), this.data.playerlist, (element, player) => {
-            const buyCounts = Helper.weaponCounts(this.data.filteredlog, player, new Set(['buy-weapon', 'buy-entity', 'buy-vehicle']))
-            const killCounts = Helper.weaponCounts(this.data.filteredlog, player, new Set(['kill']))
+            const buyCounts = Helper.weaponCounts(this.data.filteredlog, player, (e): e is GenericWeaponEvent => e.category === 'buy' && e.type !== 'buy-ammo')
+            const killCounts = Helper.weaponCounts(this.data.filteredlog, player, (e): e is GenericWeaponEvent => e.type === 'kill')
             //console.log(player, wepCounts)
 
             Charts.addPie(element.querySelector(".lefthalf"), {

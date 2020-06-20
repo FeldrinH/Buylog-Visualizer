@@ -1,5 +1,6 @@
-import type { GenericEvent, GenericPlayerEvent, GenericTimestampedEvent, KillEvent, TeamEvent, StateBlock } from './ParsedLog'
+import { GenericEvent, GenericPlayerEvent, GenericTimestampedEvent, KillEvent, TeamEvent, StateBlock } from './ParsedLog'
 import ParsedLog from './ParsedLog'
+import { assume } from './util'
 
 function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: string) {
     const ret: StateBlock[] = []
@@ -48,10 +49,10 @@ function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: st
 function addKillCount(eventlist: GenericEvent[], player: string) {
     let count = 0
     for (const e of eventlist) {
-        if (e.type === 'kill' && (<KillEvent>e).player === player) {
+        if (e.type === 'kill' && assume<KillEvent>(e) && e.player === player) {
             count += 1;
-            (<KillEvent>e).killcount = count
-        }        
+            e.killcount = count
+        }
     }
 }
 
