@@ -1,5 +1,6 @@
+import type { GenericEvent, GenericWeaponEvent, GenericPlayerEvent } from '../src/ParsedLog'
 import type ParsedLog from '../src/ParsedLog'
-import type Counter from '../src/Counter'
+import Counter from '../src/Counter'
 import type MultiCounter from '../src/MultiCounter'
 import * as fs from 'fs'
 
@@ -43,16 +44,23 @@ export function forEachLogfile(func) {
     }
 }
 
+export function weaponCounts(eventlist: GenericEvent[], isTargetEvent: (e: GenericEvent) => e is GenericWeaponEvent) {
+    const counts = new Counter()
+
+    for (const e of eventlist) {
+        if (isTargetEvent(e)) {
+            const weapon = e.weapon || e.class
+            counts.increment(weapon)
+        }
+    }
+
+    return counts
+}
+
 export function isValidGame(rawlog: any[][], data: ParsedLog, filename: string, folder: string) {
     const playercount = data.playerlist.length
     if (playercount === 0) {
-        if (!filename.includes('[0]')) {
-            //console.log(JSON.stringify(rawlog, null, 2))
-            throw new Error(`${folder}\\${filename} - ERROR: No players logged`)
-        } else {
-            console.log(`${filename} - SKIPPED: No players logged`)
-            return false
-        }
+        throw new Error(`${folder}\\${filename} - ERROR: No players logged`)
     } else if (playercount <= 2) {
         console.log(`${filename} - SKIPPED: Too few players (${playercount})`)
         return false
@@ -97,6 +105,14 @@ export function mergeCounters(counter: Counter, mergeRules: MergeSpec[]) {
         counter.set(`${mapinfo.name} (total)`, total)
         console.log(`Merged ${mergedMaps.join(', ')} into ${mapinfo.name}`)
     }
+}
+
+export function arrayToTSV(array: any[][]) {
+    let out = ''
+    array.forEach((value) => {
+        out += `${value.join('\t')}\n`
+    })
+    return out
 }
 
 export function counterToTSV(counter: Counter) {
