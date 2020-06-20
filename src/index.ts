@@ -20,7 +20,6 @@ function doUpdate() {
 
 function doGameUpdate() {
     const opt = this.options[this.selectedIndex]
-    console.log(opt)
     startbound.value = opt.dataset.start || ''
     endbound.value = opt.dataset.end || ''
     meta.value = opt.dataset.meta || ''
@@ -56,8 +55,8 @@ function initInputs() {
     })
 
     logselect.value = dataManager.filename
-    startbound.value = <any>dataManager.start
-    endbound.value = <any>dataManager.end
+    startbound.value = <any>dataManager.start || ''
+    endbound.value = <any>dataManager.end || ''
     meta.value = dataManager.metaString
 
     updatebutton.addEventListener("click", doUpdate)

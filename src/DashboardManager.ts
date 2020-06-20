@@ -51,21 +51,33 @@ export default class DashboardManager {
     setStart(start: number) {
         if (!Object.is(start, this.start)) {
             this.start = start
-            this.params.set("start", isFinite(start) ? <any>start : '')
+            if (isFinite(start)) {
+                this.params.set("start", <any>start)
+            } else {
+                this.params.delete("start")
+            }
             this.needsUpdate = true
         }
     }
     setEnd(end: number) {
         if (!Object.is(end, this.end)) {
             this.end = end
-            this.params.set("end", isFinite(end) ? <any>end : '')
+            if (isFinite(end)) {
+                this.params.set("end", <any>end)
+            } else {
+                this.params.delete("end")
+            }
             this.needsUpdate = true
         }   
     }
     setMeta(metaString: string) {
         if (metaString !== this.metaString) {
             this.metaString = metaString
-            this.params.set("meta", metaString)
+            if (metaString) {
+                this.params.set("meta", metaString)
+            } else {
+                this.params.delete("meta")
+            }
             this.needsUpdate = true
         }   
     }

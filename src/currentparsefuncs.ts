@@ -1,4 +1,5 @@
-import type { UnknownEvent, KillEvent, DeathEvent, JoinLeaveEvent, BuyEvent, BailoutEvent, DestroyEvent, CityEvent, TeamEvent, ResetEvent } from './ParsedLog'
+import type { UnknownEvent, KillEvent, DeathEvent, JoinLeaveEvent, BuyEvent, BailoutEvent, DestroyEvent, CityEvent, TeamEvent, ResetEvent, LoggingEvent } from './ParsedLog'
+import type ParsedLog from './ParsedLog'
 import moment from 'moment'
 
 export function ParseTimestamp(str: string): moment.Moment {
@@ -27,10 +28,15 @@ export function ParseGenericTransaction(event: any[]) {
 }
 
 export function ParseGenericTimestamped(event: any[]) {
+    const timestamp = ParseTimestamp(event[2])
+    if (!timestamp.isValid()) {
+        console.log(`WARNING: Invalid timestamp '${timestamp.inspect()}' in '${event.join(',')}'`)
+        return null
+    }
     return {
         time: event[0],
         type: event[1],
-        timestamp: ParseTimestamp(event[2])
+        timestamp: timestamp
     }
 }
 
@@ -54,8 +60,8 @@ export function ParseDeath(event: any[]): DeathEvent {
     }
 }
 
-export function ParseJoinLeave(event, data): JoinLeaveEvent {
-    if (event[1] !== 'join' && event[1] !== 'leave' && !event[1].startsWith('afk')) { return null }
+export function ParseJoinLeave(event: any[], data: ParsedLog): JoinLeaveEvent {
+    if (event[1] !== 'join' && event[1] !== 'leave' && !event[1].startsWith('afk-')) { return null }
     if (event[1] === 'join') {
         data.players.set(event[3], {
             id: event[3],
@@ -72,8 +78,8 @@ export function ParseJoinLeave(event, data): JoinLeaveEvent {
     }
 }
 
-export function ParseBuy(event): BuyEvent {
-    if (!event[1].startsWith('buy')) { return null }
+export function ParseBuy(event: any[]): BuyEvent {
+    if (!event[1].startsWith('buy-')) { return null }
     return {
         ...ParseGenericTransaction(event),
         category: 'buy',
@@ -82,7 +88,7 @@ export function ParseBuy(event): BuyEvent {
     }
 }
 
-export function ParseBailout(event): BailoutEvent {
+export function ParseBailout(event: any[]): BailoutEvent {
     if (event[1] !== 'bailout' && event[1] !== 'bailout-start') { return null }
     return {
         ...ParseGenericTransaction(event),
@@ -90,7 +96,7 @@ export function ParseBailout(event): BailoutEvent {
     }
 }
 
-export function ParseDestroy(event, data): DestroyEvent {
+export function ParseDestroy(event: any[]): DestroyEvent {
     if (event[1] !== 'destroy') { return null }
     return {
         ...ParseGenericTransaction(event),
@@ -99,7 +105,7 @@ export function ParseDestroy(event, data): DestroyEvent {
     }
 }
 
-export function ParseCity(event): CityEvent {
+export function ParseCity(event: any[]): CityEvent {
     if (event[1] === 'city-take') {
         return {
             ...ParseGeneric(event),
@@ -119,7 +125,7 @@ export function ParseCity(event): CityEvent {
     return null
 }
 
-export function ParseTeam(event, data): TeamEvent {
+export function ParseTeam(event: any[]): TeamEvent {
     if (event[1] !== 'team-join') { return null }
     return {
         ...ParseGeneric(event),
@@ -129,8 +135,8 @@ export function ParseTeam(event, data): TeamEvent {
     }
 }
 
-export function ParseReset(event, data): ResetEvent {
-    if (!event[1].startsWith('reset-')) { return null }
+export function ParseReset(event: any[]): ResetEvent {
+    if (event[1] !== 'reset' && !event[1].startsWith('reset-')) { return null }
     if (Number.isNaN(event[2])) {
         console.log(`${event[1]}  ${event[0]}`)
     }
@@ -138,6 +144,14 @@ export function ParseReset(event, data): ResetEvent {
         ...ParseGeneric(event),
         category: 'reset',
         target: event[2]
+    }
+}
+
+export function ParseLogging(event: any[], data: ParsedLog): LoggingEvent {
+    if (!event[1].startsWith('logging')) { return null }
+    return {
+        ...ParseGenericTimestamped(event),
+        category: 'logging'
     }
 }
 
@@ -151,4 +165,4 @@ export function ParseFallback(event): UnknownEvent {
     }
 }
 
-export const currentParseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseJoinLeave, ParseCity, ParseTeam, ParseReset, ParseFallback]
+export const currentParseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseJoinLeave, ParseCity, ParseTeam, ParseReset, ParseLogging, ParseFallback]
