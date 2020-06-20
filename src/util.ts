@@ -1,4 +1,4 @@
-import type { GenericEvent } from "./ParsedLog"
+import type { GenericEvent, KillEvent, BuyEvent, DeathEvent, DestroyEvent, BailoutEvent, TeamEvent, JoinLeaveEvent, CityEvent, GenericTimestampedEvent, GenericPlayerEvent, LoggingEvent } from "./ParsedLog"
 
 export const palette = [
     '#ff0029', '#377eb8', '#66a61e', '#984ea3', '#00d2d5', '#ff7f00', '#af8d00',
@@ -13,21 +13,44 @@ export const palette = [
     '#27d0df', '#a04a9b'
 ]
 
-export function assume<T extends GenericEvent>(value: GenericEvent): value is T {
+/*export function assume<T extends GenericEvent>(value: GenericEvent): value is T {
     return true
-}
+}*/
 
-/* export function assumeType<T>(value: any): value is T {
-    return true
-}
-
+export function isType<T extends KillEvent>(event: GenericEvent, type: 'kill' | 'kill-penalty'): event is T
+export function isType<T extends BuyEvent>(event: GenericEvent, type: 'buy-weapon' | 'buy-weapon-drop' | 'buy-entity' | 'buy-vehicle' | 'buy-ammo'): event is T
+export function isType<T extends DeathEvent>(event: GenericEvent, type: 'death'): event is T;
+export function isType<T extends DestroyEvent>(event: GenericEvent, type: 'destroy'): event is T;
+export function isType<T extends BailoutEvent>(event: GenericEvent, type: 'bailout' | 'bailout-start'): event is T;
+export function isType<T extends TeamEvent>(event: GenericEvent, type: 'team-join'): event is T;
+export function isType<T extends JoinLeaveEvent>(event: GenericEvent, type: 'join' | 'leave' | 'afk-enter' | 'afk-leave'): event is T;
+export function isType<T extends LoggingEvent>(event: GenericEvent, type: 'logging-started' | 'logging-ended'): event is T;
+export function isType<T extends GenericEvent>(event: GenericEvent, type: string): event is T
 export function isType<T extends GenericEvent>(event: GenericEvent, type: string): event is T {
     return event.type === type
 }
 
+export function isCategory<T extends KillEvent>(event: GenericEvent, category: 'kill'): event is T;
+export function isCategory<T extends BuyEvent>(event: GenericEvent, category: 'buy'): event is T;
+export function isCategory<T extends DeathEvent>(event: GenericEvent, category: 'death'): event is T;
+export function isCategory<T extends DestroyEvent>(event: GenericEvent, category: 'destroy'): event is T;
+export function isCategory<T extends BailoutEvent>(event: GenericEvent, category: 'bailout'): event is T;
+export function isCategory<T extends TeamEvent>(event: GenericEvent, category: 'team'): event is T;
+export function isCategory<T extends CityEvent>(event: GenericEvent, category: 'city'): event is T;
+export function isCategory<T extends JoinLeaveEvent>(event: GenericEvent, category: 'joinleave'): event is T;
+export function isCategory<T extends LoggingEvent>(event: GenericEvent, category: 'logging'): event is T;
+export function isCategory<T extends GenericEvent>(event: GenericEvent, category: string): event is T;
 export function isCategory<T extends GenericEvent>(event: GenericEvent, category: string): event is T {
     return event.category === category
-}*/
+}
+
+export function hasTimestamp(event: GenericEvent): event is GenericTimestampedEvent {
+    return <any>(<GenericTimestampedEvent>event).timestamp
+}
+
+export function hasPlayer(event: GenericEvent): event is GenericPlayerEvent {
+    return <any>(<GenericPlayerEvent>event).player
+}
 
 export function mod(n: number, m: number) {
     return ((n % m) + m) % m

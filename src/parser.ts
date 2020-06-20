@@ -1,6 +1,7 @@
-import { GenericEvent, GenericPlayerEvent, GenericTimestampedEvent, KillEvent, TeamEvent, StateBlock } from './ParsedLog'
+import type { GenericEvent, GenericPlayerEvent, GenericTimestampedEvent, KillEvent, TeamEvent, StateBlock } from './ParsedLog'
 import ParsedLog from './ParsedLog'
-import { assume } from './util'
+import { isCategory, isType, hasTimestamp, hasPlayer } from './util'
+import './utilfuncs'
 
 function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: string) {
     const ret: StateBlock[] = []
@@ -23,7 +24,7 @@ function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: st
     }
 
     for (const e of eventlist) {
-        if ((e.category === 'joinleave' || e.category === 'team') && (<GenericPlayerEvent>e).player === player) {
+        if ((isCategory(e, 'joinleave') || isCategory(e, 'team')) && e.player === player) {
             if (e.type === 'join') {
                 if (lastState === 'offline') {
                     appendEvent(e.time, 'active', null)
@@ -49,7 +50,7 @@ function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: st
 function addKillCount(eventlist: GenericEvent[], player: string) {
     let count = 0
     for (const e of eventlist) {
-        if (e.type === 'kill' && assume<KillEvent>(e) && e.player === player) {
+        if (isType(e, 'kill') && e.player === player) {
             count += 1;
             e.killcount = count
         }
@@ -57,12 +58,13 @@ function addKillCount(eventlist: GenericEvent[], player: string) {
 }
 
 function determineStartTimestamp(data: ParsedLog) {
-    if (data.log[0].type === 'logging-started') {
-        return (<GenericTimestampedEvent>data.log[0]).timestamp
+    const firstevent = data.log[0]
+    if (isCategory(firstevent, 'logging') && isType(firstevent, 'logging-started')) {
+        return firstevent.timestamp
     } else {
-        const timestampevent = <GenericTimestampedEvent>data.log.find(e => (<GenericTimestampedEvent>e).timestamp)
+        const timestampevent = <GenericTimestampedEvent>data.log.find(e => hasTimestamp(e))
         if (timestampevent) {
-            //console.log('WARNING: No logging started event. Logging start timestamp may be incorrect.')
+            console.log('WARNING: No logging started event. Logging start timestamp may be incorrect.')
             return timestampevent.timestamp
         } else {
             //console.log('WARNING: No timestamped events. Logging start timestamp could not be determined')
@@ -72,10 +74,11 @@ function determineStartTimestamp(data: ParsedLog) {
 }
 
 function determineEndTimestamp(data: ParsedLog) {
-    if (data.log[data.log.length - 1].type === 'logging-ended') {
-        return (<GenericTimestampedEvent>data.log[data.log.length - 1]).timestamp
+    const lastevent = data.log[data.log.length - 1]
+    if (isCategory(lastevent, 'logging') && isType(lastevent, 'logging-ended')) {
+        return lastevent.timestamp
     } else {
-        const timestampevent = <GenericTimestampedEvent>data.log.findLast(e => (<GenericTimestampedEvent>e).timestamp) 
+        const timestampevent = <GenericTimestampedEvent>data.log.findLast(e => hasTimestamp(e)) 
         if (timestampevent) {
             console.log('WARNING: No logging ended event. Logging end timestamp may be incorrect.')
             return timestampevent.timestamp
@@ -112,7 +115,7 @@ export function parse(rawlog: any[][], parseFuncs: ((event: any[], data: ParsedL
 
     if (data.players.size === 0 || forcedetectplayers) {
         data.log.forEach(e => {
-            if ((<GenericPlayerEvent>e).player && assume<GenericPlayerEvent>(e) && !data.players.has(e.player)) {
+            if (hasPlayer(e) && !data.players.has(e.player)) {
                 data.players.set(e.player, {
                     id: e.player
                 })

@@ -1,6 +1,6 @@
 import type { GenericEvent, KillEvent, GenericPlayerEvent, GenericTransactionEvent, CityEvent, GenericWeaponEvent, JoinLeaveEvent, DeathEvent, BuyEvent, BailoutEvent, PlayerInfo, DestroyEvent } from './ParsedLog.js'
 import './utilfuncs'
-import { assume } from './util'
+import { isCategory, isType } from './util'
 import * as Util from './util'
 import * as Info from './metainfo'
 import Counter from './Counter'
@@ -35,14 +35,14 @@ export function eventPointSeries(eventlist: GenericEvent[], player: string) {
     const ret: {
         x: number,
         y: number,
-        event: GenericTransactionEvent
+        event: KillEvent | BuyEvent 
     }[] = []
     for (const e of eventlist) {
-        if ((<GenericTransactionEvent>e).player === player && ((e.category === 'buy' && e.type !== 'buy-ammo') || e.category === 'kill')) {
+        if ((isCategory(e, 'buy') && e.type !== 'buy-ammo' || isCategory(e, 'kill')) && e.player === player) {
             ret.push({
                 x: e.time,
-                y: Math.abs((<GenericTransactionEvent>e).deltamoney),
-                event: <GenericTransactionEvent>e 
+                y: Math.abs(e.deltamoney),
+                event: e
             })
         }
     }
@@ -56,11 +56,11 @@ export function cityTimeSeries(eventlist: GenericEvent[], team: string) {
         event: CityEvent
     }[] = []
     for (const e of eventlist) {
-        if (e.category === 'city' && (<CityEvent>e).team === team) {
+        if (isCategory(e, 'city') && e.team === team) {
             ret.push({
                 x: e.time,
-                y: (<CityEvent>e).teamtime,
-                event: <CityEvent>e
+                y: e.teamtime,
+                event: e
             })
         }
     }
@@ -101,7 +101,7 @@ export function weaponCounts(eventlist: GenericEvent[], player: string | null, i
 export function conflictBreakdown(eventlist: GenericEvent[], player: string) {
     const matches = new MultiCounter()
     for (const e of eventlist) {
-        if (e.type === 'kill' && assume<KillEvent>(e) && (e.player === player || e.victim === player)) {
+        if (isType(e, 'kill') && (e.player === player || e.victim === player)) {
             const ourwin = e.player === player
             const opponent = ourwin ? e.victim : e.player
             matches.increment(opponent, 'wins', ourwin ? 1 : 0)
@@ -121,7 +121,7 @@ export function maxConcurrent(eventlist: GenericEvent[]) {
     let maxcount = 0
     let curcount = 0
     for (const e of eventlist) {
-        if (e.category === 'joinleave') {
+        if (isCategory(e, 'joinleave')) {
             if (e.type === 'join' || e.type === 'afk-leave') {
                 curcount += 1
             } else if (e.type === 'leave' || e.type === 'afk-enter') {
@@ -158,14 +158,14 @@ export function maxStreak(eventlist: GenericEvent[], player: string, streakevent
 
 export function killsBreakdown(eventlist: GenericEvent[], playerlist: string[]) {
     return playerlist.map(player => {
-        const kills = eventlist.count(e => e.type === 'kill' && assume<KillEvent>(e) && e.player === player)
-        const deaths = eventlist.count(e => e.category === 'death' && assume<DeathEvent>(e) && e.player === player)
+        const kills = eventlist.count(e => isType(e, 'kill') && e.player === player)
+        const deaths = eventlist.count(e => isCategory(e, 'death') && e.player === player)
         const killstreak = maxStreak(eventlist, player, 'kill', 'death')
         const deathstreak = maxStreak(eventlist, player, 'death', 'kill')
-        const moneyspent = -eventlist.sum(e => e.category === 'buy' && assume<BuyEvent>(e) && e.player === player ? e.deltamoney : 0)
-        const moneylost = -eventlist.sum(e => e.category === 'death' && assume<DeathEvent>(e) && e.player === player ? e.deltamoney : 0)
-        const moneybailed = eventlist.sum(e => e.category === 'bailout' && assume<BailoutEvent>(e) && e.player === player ? e.deltamoney : 0)
-        const moneymade = eventlist.sum(e => (e.type === 'kill' || e.category === 'destroy') && assume<KillEvent | DestroyEvent>(e) && e.player === player ? e.deltamoney : 0)
+        const moneyspent = -eventlist.sum(e => isCategory(e, 'buy') && e.player === player ? e.deltamoney : 0)
+        const moneylost = -eventlist.sum(e => isCategory(e, 'death') && e.player === player ? e.deltamoney : 0)
+        const moneybailed = eventlist.sum(e => isCategory(e, 'bailout') && e.player === player ? e.deltamoney : 0)
+        const moneymade = eventlist.sum(e => (isType(e, 'kill') || isCategory(e, 'destroy')) && e.player === player ? e.deltamoney : 0)
         return {
             player: player,
             kills: kills,
