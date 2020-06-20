@@ -68,7 +68,7 @@ function determineStartTimestamp(data: ParsedLog) {
             return timestampevent.timestamp
         } else {
             //console.log('WARNING: No timestamped events. Logging start timestamp could not be determined')
-            return undefined
+            return null
         }
     }
 }
@@ -83,8 +83,8 @@ function determineEndTimestamp(data: ParsedLog) {
             console.log('WARNING: No logging ended event. Logging end timestamp may be incorrect.')
             return timestampevent.timestamp
         } else {
-            console.log('WARNING: No timestamped events. Logging end timestamp could not be determined')
-            return undefined
+            console.log('WARNING: No timestamped events. Logging start and end timestamps could not be determined')
+            return null
         }
     }
 }

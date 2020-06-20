@@ -108,11 +108,13 @@ export default class ParsedLog {
     playerlist: string[]
 
     validtime: boolean
+    filtered: boolean
     start: number
     end: number
     filteredstart: number
     filteredend: number
     filteredduration: number
+
     starttimestamp: moment.Moment
     endtimestamp: moment.Moment
 
@@ -126,5 +128,6 @@ export default class ParsedLog {
         this.filteredstart = start
         this.filteredend = end
         this.filteredduration = end - start
+        this.filtered = this.filteredlog.length < this.log.length 
     }
 }

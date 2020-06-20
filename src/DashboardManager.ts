@@ -136,7 +136,7 @@ export default class DashboardManager {
         if (!this.logdate.isValid()) {
             console.log(`WARNING: Invalid log date '${this.logdate.inspect()}'`)
         }
-        this.legacyparse = this.logdate.year() <= 2019
+        this.legacyparse = this.logdate.isBefore('2020-05-19')
         if (this.legacyparse) {
             console.log('INFO: Old log detected. Using legacy parser.')
         }
@@ -163,7 +163,15 @@ export default class DashboardManager {
         const [ date, time, mapstr ] = this.filename.split('-')
         const [ map ] = mapstr.split('.')
         Charts.addKeyValueText(textroot, textemplate, "Map:", map)
-        Charts.addKeyValueText(textroot, textemplate, "Start time:", moment(`${date} ${time}`, 'YYYY.MM.DD HH.mm').format('dddd, MMMM Do YYYY, HH:mm'))
+        if (!this.data.filtered) {
+            Charts.addKeyValueText(textroot, textemplate, "Start time:", this.data.starttimestamp.format('dddd, MMMM Do YYYY, HH:mm'))
+            Charts.addKeyValueText(textroot, textemplate, "End time:", this.data.endtimestamp.format('dddd, MMMM Do YYYY, HH:mm'))
+        }
+        if (this.data.validtime) {
+            Charts.addKeyValueText(textroot, textemplate, "Duration:", Util.formatDuration(moment.duration(this.data.filteredduration, 'seconds')))
+        } else if (!this.data.filtered && this.data.starttimestamp && this.data.endtimestamp){
+            Charts.addKeyValueText(textroot, textemplate, "Duration:", Util.formatDuration(moment.duration(this.data.endtimestamp.diff(this.data.starttimestamp))))
+        }
         Charts.addKeyValueText(textroot, textemplate, "Total players:", this.data.playerlist.length)
         Charts.addKeyValueText(textroot, textemplate, "Max concurrent players:", Helper.maxConcurrent(this.data.filteredlog))
         if (this.data.validtime) {
@@ -178,7 +186,7 @@ export default class DashboardManager {
                 data: Helper.stateTimelineSeries(this.data.players)
             }],
             chart: {
-                height: 300,
+                height: 25 * this.data.playerlist.length + 100,
                 type: 'rangeBar'
             },
             plotOptions: {

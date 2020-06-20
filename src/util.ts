@@ -1,4 +1,5 @@
 import type { GenericEvent, KillEvent, BuyEvent, DeathEvent, DestroyEvent, BailoutEvent, TeamEvent, JoinLeaveEvent, CityEvent, GenericTimestampedEvent, GenericPlayerEvent, LoggingEvent } from "./ParsedLog"
+import type { Duration } from "moment"
 
 export const palette = [
     '#ff0029', '#377eb8', '#66a61e', '#984ea3', '#00d2d5', '#ff7f00', '#af8d00',
@@ -59,6 +60,12 @@ export function mod(n: number, m: number) {
 export function round(number: number, decimals: number) {
     const exp = 10 ** decimals
     return Math.round((number + Number.EPSILON) * exp) / exp
+}
+
+export function formatDuration(duration: Duration) {
+    const hours = Math.floor(duration.asHours())
+    const minutes = duration.minutes()
+    return `${hours > 0 ? `${hours} hour${hours === 1 ? '' : 's'}` : ''} ${minutes} minutes`
 }
 
 // isObject() and extend() taken from ApexCharts /utils/Utils.js (https://github.com/apexcharts/apexcharts.js/blob/master/src/utils/Utils.js) and optimized for a more restricted use case
