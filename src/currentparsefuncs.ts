@@ -155,14 +155,17 @@ export function ParseLogging(event: any[], data: ParsedLog): LoggingEvent {
     }
 }
 
-export function ParseFallback(event): UnknownEvent {
-    //if (event[0] === 'action' || event[0] === 'time') { return null }
-    console.log(`Unparsed event: '${event[1]}'`)
+export function ParseFallbackSilent(event: any[]): UnknownEvent {
     return {
         ...ParseGeneric(event),
         category: 'unknown',
         data: event
     }
+}
+
+export function ParseFallback(event: any[]): UnknownEvent {
+    console.log(`Unparsed event: '${event[1]}'`)
+    return ParseFallbackSilent(event)
 }
 
 export const currentParseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseJoinLeave, ParseCity, ParseTeam, ParseReset, ParseLogging, ParseFallback]
