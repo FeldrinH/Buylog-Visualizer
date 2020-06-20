@@ -27,11 +27,11 @@ export default class Counter {
         return this.counts.get(key) || 0
     }
 
-    map<T>(func: (key: string, value: number) => T) {
+    map<T>(func: (key: string, value: number) => T): T[] {
         return this.counts.map(func)
     }
 
-    forEach(func: (value: number, key: string, map: Map<string, number>) => void) {
+    forEach(func: (value: number, key: string, map: Map<string, number>) => void): void {
         this.counts.forEach(func)
     }
 }

@@ -1,4 +1,4 @@
-import type { JoinLeaveEvent, GenericTimestampedEvent, LoggingEvent } from './ParsedLog'
+import type { JoinLeaveEvent, GenericTimestampedEvent, LoggingEvent, KillEvent } from './ParsedLog'
 import type ParsedLog from './ParsedLog'
 import { ParseTimestamp, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallbackSilent, ParseFallback, ParseCity, ParseTeam } from './currentparsefuncs'
 
@@ -100,6 +100,20 @@ export function ParseJoinLeaveStandardized(event: any[], data: ParsedLog): JoinL
     }
 }
 
+export function ParseKillStandardized(event: any[]): KillEvent {
+    if (event[1] !== 'kill' && event[1] !== 'kill-penalty') { return null }
+    return {
+        time: event[0],
+        type: event[2] === event[3] || event[5] < 0 ? 'kill-penalty' : event[1],
+        player: event[2],
+        deltamoney: event[5],
+        money: event[4],
+        category: 'kill',
+        victim: event[3] || event[2],
+        weapon: event[6]
+    }
+}
+
 export const legacyParseFuncs = [ParseJoinLeaveStandardized, ParseTimestampedHumanReadable, ParseLoggingStandardized]
 
-export const legacyFullParseFuncs = [ParseTimestampedHumanReadable, ParseJoinLeaveStandardized, ParseLoggingStandardized, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseCity, ParseTeam, ParseReset, ParseFallback]
+export const legacyFullParseFuncs = [ParseTimestampedHumanReadable, ParseJoinLeaveStandardized, ParseLoggingStandardized, ParseKillStandardized, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseCity, ParseTeam, ParseReset, ParseFallback]

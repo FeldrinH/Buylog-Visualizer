@@ -1,4 +1,4 @@
-import type moment from 'moment'
+import type { Moment } from 'moment'
 
 export interface StateBlock {
     start: number,
@@ -21,7 +21,7 @@ export interface GenericEvent {
 }
 
 export interface GenericTimestampedEvent extends GenericEvent {
-    readonly timestamp: moment.Moment
+    readonly timestamp: Moment
 }
 
 export interface GenericPlayerEvent extends GenericEvent {
@@ -115,8 +115,10 @@ export default class ParsedLog {
     filteredend: number
     filteredduration: number
 
-    starttimestamp: moment.Moment
-    endtimestamp: moment.Moment
+    starttimestamp: Moment
+    endtimestamp: Moment
+
+    filetimestamp?: Moment
 
     constructor() {
         this.log = []

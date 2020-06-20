@@ -1,7 +1,10 @@
-import type { GenericEvent, GenericPlayerEvent, GenericTimestampedEvent, KillEvent, TeamEvent, StateBlock } from './ParsedLog'
+import type { GenericEvent, GenericTimestampedEvent, TeamEvent, StateBlock } from './ParsedLog'
 import ParsedLog from './ParsedLog'
 import { isCategory, isType, hasTimestamp, hasPlayer } from './util'
 import './utilfuncs'
+import moment from 'moment'
+import { legacyFullParseFuncs } from './legacyparsefuncs'
+import { currentParseFuncs } from './currentparsefuncs'
 
 function generateStateBlocks(eventlist: GenericEvent[], endTimestamp, player: string) {
     const ret: StateBlock[] = []
@@ -89,6 +92,11 @@ function determineEndTimestamp(data: ParsedLog) {
     }
 }
 
+function parseLogDate(filename: string) {
+    const [ date, time ] = filename.split('-')
+    return moment(`${date} ${time}`, 'YYYY.MM.DD HH.mm', true)
+}
+
 export function parse(rawlog: any[][], parseFuncs: ((event: any[], data: ParsedLog) => GenericEvent)[], extrainfo: boolean, forcedetectplayers: boolean = false) {
     const data = new ParsedLog()
     data.validtime = rawlog.length > 0 && Number.isFinite(Number(rawlog[0][0]))
@@ -135,5 +143,20 @@ export function parse(rawlog: any[][], parseFuncs: ((event: any[], data: ParsedL
 
     //console.log(data.log)
 
+    return data
+}
+
+export function smartParse(rawlog: any[][], filename: string, extrainfo: boolean, forcedetectplayers: boolean = false) {
+    const logtimestamp = parseLogDate(filename)
+    if (!logtimestamp.isValid()) {
+        console.log(`WARNING: Invalid log timestamp '${logtimestamp.inspect()}'`)
+    }
+    const legacyparse = logtimestamp.isBefore('2020-05-19')
+    if (legacyparse) {
+        console.log('INFO: Old log detected. Using legacy parser.')
+    }
+
+    const data = parse(rawlog, legacyparse ? legacyFullParseFuncs : currentParseFuncs, extrainfo, legacyparse || forcedetectplayers)
+    data.filetimestamp = logtimestamp
     return data
 }

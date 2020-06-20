@@ -7,8 +7,6 @@ import * as Util from './util'
 import * as Parser from './parser'
 import * as Helper from './processhelper'
 import * as Charts from './charts'
-import { currentParseFuncs } from './currentparsefuncs'
-import { legacyFullParseFuncs } from './legacyparsefuncs'
 
 declare var Apex: any
 
@@ -23,8 +21,6 @@ export default class DashboardManager {
     metaString: string
     meta: any
 
-    logdate: moment.Moment
-    legacyparse: boolean
     rawlog: any[][]
     data: ParsedLog
     
@@ -131,17 +127,8 @@ export default class DashboardManager {
     async loadData() {
         const dataStr = await (await fetch(`/logs/${this.filename}`)).text()
         this.rawlog = parse(dataStr, { skip_empty_lines: true, relax_column_count: true, cast: true })
-        
-        this.logdate = this.parseLogDate(this.filename)
-        if (!this.logdate.isValid()) {
-            console.log(`WARNING: Invalid log date '${this.logdate.inspect()}'`)
-        }
-        this.legacyparse = this.logdate.isBefore('2020-05-19')
-        if (this.legacyparse) {
-            console.log('INFO: Old log detected. Using legacy parser.')
-        }
 
-        this.data = Parser.parse(this.rawlog, this.legacyparse ? legacyFullParseFuncs : currentParseFuncs, true)
+        this.data = Parser.smartParse(this.rawlog, this.filename, true)
 
         /* this.log.forEach(e => {
             if (e.type === 'reset-full') {
