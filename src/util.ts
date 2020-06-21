@@ -1,4 +1,4 @@
-import type { GenericEvent, KillEvent, BuyEvent, DeathEvent, DestroyEvent, BailoutEvent, TeamEvent, JoinLeaveEvent, CityEvent, GenericTimestampedEvent, GenericPlayerEvent, LoggingEvent, GenericWeaponEvent, GenericTransactionEvent } from "./ParsedLog"
+import type { GenericEvent, KillEvent, BuyEvent, DeathEvent, DestroyEvent, BailoutEvent, TeamEvent, JoinLeaveEvent, CityEvent, GenericTimestampedEvent, GenericPlayerEvent, LoggingEvent } from "./ParsedLog"
 import type { Duration } from "moment"
 
 export const palette = [
@@ -45,16 +45,12 @@ export function isCategory<T extends GenericEvent>(event: GenericEvent, category
     return event.category === category
 }
 
-export function hasProperty(event: GenericEvent, property: 'class'): event is GenericWeaponEvent
-export function hasProperty(event: GenericEvent, property: 'weapon'): event is GenericWeaponEvent
-export function hasProperty(event: GenericEvent, property: 'timestamp'): event is GenericTimestampedEvent
-export function hasProperty(event: GenericEvent, property: 'player'): event is GenericPlayerEvent
-export function hasProperty(event: GenericEvent, property: 'deltamoney'): event is GenericTransactionEvent
-export function hasProperty(event: GenericEvent, property: 'money'): event is GenericTransactionEvent
-export function hasProperty<K extends string>(event: GenericEvent, property: K): event is GenericEvent & { [P in K]: any }
-export function hasProperty<K extends string, T>(event: GenericEvent, property: K): event is GenericEvent & { [P in K]: T }
-export function hasProperty(event: GenericEvent, property: string): event is GenericEvent {
-    return event[property] != undefined
+export function hasTimestamp(event: GenericEvent): event is GenericTimestampedEvent {
+    return <any>(<GenericTimestampedEvent>event).timestamp
+}
+
+export function hasPlayer(event: GenericEvent): event is GenericPlayerEvent {
+    return <any>(<GenericPlayerEvent>event).player
 }
 
 export function mod(n: number, m: number) {
