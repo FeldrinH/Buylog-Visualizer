@@ -96,6 +96,16 @@ export interface LoggingEvent extends GenericTimestampedEvent {
     readonly category: 'logging'
 }
 
+export interface MessageEvent extends GenericTimestampedEvent {
+    readonly category: 'message'
+    readonly message: string
+}
+
+export interface FreebuyEvent extends GenericEvent {
+    readonly category: 'freebuy'
+    //readonly timestamp?: Moment
+}
+
 export interface UnknownEvent extends GenericEvent {
     readonly category: 'unknown',
     readonly data: any[]

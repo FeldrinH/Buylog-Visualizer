@@ -1,15 +1,15 @@
-import type { JoinLeaveEvent, GenericTimestampedEvent, LoggingEvent, KillEvent } from './ParsedLog'
+import type { JoinLeaveEvent, GenericTimestampedEvent, LoggingEvent, KillEvent, UnknownEvent, FreebuyEvent } from './ParsedLog'
 import type ParsedLog from './ParsedLog'
-import { ParseTimestamp, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallbackSilent, ParseFallback, ParseCity, ParseTeam } from './currentparsefuncs'
+import { ParseTimestamp, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallbackSilent, ParseFallback, ParseCity, ParseTeam, ParseFreebuy } from './currentparsefuncs'
 
-export function ParseTimestampedHumanReadable(event: any[], data: ParsedLog): GenericTimestampedEvent | JoinLeaveEvent {
+export function ParseTimestampedHumanReadable(event: any[], data: ParsedLog): JoinLeaveEvent | LoggingEvent | FreebuyEvent | (GenericTimestampedEvent & UnknownEvent) {
     if (!event[1].endsWith('--')) { return null }
 
-    const parse = event[1].split('--')
+    const parse: string = event[1].split('--')
     const rawplayer = parse[1].substring(0, parse[1].lastIndexOf(' '))
 
-    let type = null
-    let category = null
+    let type: string = null
+    let category: 'joinleave' | 'logging' | 'freebuy' | 'unknown' = null
     if (parse[1].endsWith(" JOINED")) {
         type = 'join'
         category = 'joinleave'
@@ -22,6 +22,12 @@ export function ParseTimestampedHumanReadable(event: any[], data: ParsedLog): Ge
     } else if (parse[1] === "LOGGING ENDED") {
         type = 'logging-ended'
         category = 'logging'
+    } else if (parse[1] === "FREEBUY ENABLED") {
+        type = 'freebuy-enabled'
+        category = 'freebuy'
+    } else if (parse[1] === "FREEBUY DISABLED") {
+        type = 'freebuy-disabled'
+        category = 'freebuy'
     } else {
         console.log(`Unparsed human readable event '${parse[1]}'`)
         type = event[1].split('--')[1]
@@ -40,13 +46,30 @@ export function ParseTimestampedHumanReadable(event: any[], data: ParsedLog): Ge
         })
     }
 
-    return {
+    const genericEvent = {
         time: event[0],
         type: type,
-        category: category,
-        player: category === 'joinleave' ? rawplayer : undefined,
         timestamp: timestamp
     }
+    if (category === 'joinleave') {
+        return {
+            ...genericEvent,
+            category: 'joinleave',
+            player: rawplayer
+        }
+    } else if (category === 'unknown') {
+        return {
+            ...genericEvent,
+            category: 'unknown',
+            data: event
+        }
+    } else {
+        return {
+            ...genericEvent,
+            category: category
+        }
+    }
+    
 }
 
 export function ParseLoggingStandardized(event: any[], data: ParsedLog): LoggingEvent {
@@ -116,4 +139,4 @@ export function ParseKillStandardized(event: any[]): KillEvent {
 
 export const legacyParseFuncs = [ParseJoinLeaveStandardized, ParseTimestampedHumanReadable, ParseLoggingStandardized]
 
-export const legacyFullParseFuncs = [ParseTimestampedHumanReadable, ParseJoinLeaveStandardized, ParseLoggingStandardized, ParseKillStandardized, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseCity, ParseTeam, ParseReset, ParseFallback]
+export const legacyFullParseFuncs = [ParseTimestampedHumanReadable, ParseJoinLeaveStandardized, ParseLoggingStandardized, ParseKillStandardized, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseCity, ParseTeam, ParseReset, ParseFreebuy, ParseFallback]

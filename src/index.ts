@@ -63,5 +63,6 @@ function initInputs() {
     logselect.addEventListener("change", doGameUpdate)
 }
 
-initInputs()
+initInputs();
 
+(<any>window).dataManager = dataManager;
