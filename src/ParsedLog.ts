@@ -99,6 +99,7 @@ export interface LoggingEvent extends GenericTimestampedEvent {
 export interface MessageEvent extends GenericTimestampedEvent {
     readonly category: 'message'
     readonly message: string
+    readonly player?: string
 }
 
 export interface FreebuyEvent extends GenericEvent {

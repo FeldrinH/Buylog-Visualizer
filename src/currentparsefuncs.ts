@@ -1,4 +1,4 @@
-import type { UnknownEvent, KillEvent, DeathEvent, JoinLeaveEvent, BuyEvent, BailoutEvent, DestroyEvent, CityEvent, TeamEvent, ResetEvent, LoggingEvent, FreebuyEvent } from './ParsedLog'
+import type { UnknownEvent, KillEvent, DeathEvent, JoinLeaveEvent, BuyEvent, BailoutEvent, DestroyEvent, CityEvent, TeamEvent, ResetEvent, LoggingEvent, FreebuyEvent, MessageEvent } from './ParsedLog'
 import type ParsedLog from './ParsedLog'
 import moment from 'moment'
 
@@ -162,6 +162,24 @@ export function ParseFreebuy(event: any[]): FreebuyEvent {
     }
 }
 
+export function ParseMessage(event: any[]): MessageEvent {
+    if (event[1] !== 'message') { return null }
+    if (event[2]) {
+        return {
+            ...ParseGenericTimestamped(event),
+            category: 'message',
+            message: event[3],
+            player: event[2]
+        }
+    } else {
+        return {
+            ...ParseGenericTimestamped(event),
+            category: 'message',
+            message: event[3]
+        }
+    }
+}
+
 export function ParseLogging(event: any[]): LoggingEvent {
     if (!event[1].startsWith('logging')) { return null }
     return {
@@ -183,4 +201,4 @@ export function ParseFallback(event: any[]): UnknownEvent {
     return ParseFallbackSilent(event)
 }
 
-export const currentParseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseJoinLeave, ParseCity, ParseTeam, ParseReset, ParseFreebuy, ParseLogging, ParseFallback]
+export const currentParseFuncs = [ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseJoinLeave, ParseCity, ParseTeam, ParseReset, ParseFreebuy, ParseMessage, ParseLogging, ParseFallback]
