@@ -29,7 +29,6 @@ export interface GenericPlayerEvent extends GenericEvent {
 }
 
 export interface GenericTransactionEvent extends GenericPlayerEvent {
-    readonly player: string,
     readonly deltamoney: number,
     readonly money: number
 }

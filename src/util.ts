@@ -1,4 +1,4 @@
-import type { GenericEvent, KillEvent, BuyEvent, DeathEvent, DestroyEvent, BailoutEvent, TeamEvent, JoinLeaveEvent, CityEvent, GenericTimestampedEvent, GenericPlayerEvent, LoggingEvent } from "./ParsedLog"
+import type { GenericEvent, KillEvent, BuyEvent, DeathEvent, DestroyEvent, BailoutEvent, TeamEvent, JoinLeaveEvent, CityEvent, GenericTimestampedEvent, GenericPlayerEvent, LoggingEvent, GenericWeaponEvent, GenericTransactionEvent } from "./ParsedLog"
 import type { Duration } from "moment"
 
 export const palette = [
@@ -46,11 +46,19 @@ export function isCategory<T extends GenericEvent>(event: GenericEvent, category
 }
 
 export function hasTimestamp(event: GenericEvent): event is GenericTimestampedEvent {
-    return <any>(<GenericTimestampedEvent>event).timestamp
+    return (<GenericTimestampedEvent>event).timestamp != undefined
 }
 
 export function hasPlayer(event: GenericEvent): event is GenericPlayerEvent {
-    return <any>(<GenericPlayerEvent>event).player
+    return (<GenericPlayerEvent>event).player != undefined
+}
+
+export function hasWeaponOrClass(event: GenericEvent): event is GenericWeaponEvent {
+    return (<GenericWeaponEvent>event).weapon != undefined || (<GenericWeaponEvent>event).class != undefined
+}
+
+export function hasTransaction(event: GenericEvent): event is GenericTransactionEvent {
+    return (<GenericTransactionEvent>event).deltamoney != undefined && (<GenericTransactionEvent>event).money != undefined && (<GenericTransactionEvent>event).player != undefined
 }
 
 export function mod(n: number, m: number) {
