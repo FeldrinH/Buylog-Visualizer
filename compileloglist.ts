@@ -1,7 +1,6 @@
 import fs from 'fs'
 import * as Parser from './src/parser.js'
 import parse from 'csv-parse/lib/sync.js'
-import { legacyFullParseFuncs } from './src/legacyparsefuncs.js'
 
 import logcounts from './logcounts.js'
 
@@ -25,7 +24,7 @@ const mergedlist = loglist.map(opt => {
     if (!plycount) {
         console.log(`Counting players for ${opt}`)
         const rawlog = parse(fs.readFileSync(`./dist/logs/${opt}`), { skip_empty_lines: true, relax_column_count: true })
-        const data = Parser.parse(rawlog, legacyFullParseFuncs, false, true)
+        const data = Parser.smartParse(rawlog, opt, false, true)
         plycount = data.playerlist.length
         logcounts[opt] = plycount
     }

@@ -1,6 +1,6 @@
 import type { JoinLeaveEvent, GenericTimestampedEvent, LoggingEvent, KillEvent, UnknownEvent, FreebuyEvent } from './ParsedLog'
 import type ParsedLog from './ParsedLog'
-import { ParseTimestamp, ParseKill, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallbackSilent, ParseFallback, ParseCity, ParseTeam, ParseFreebuy } from './currentparsefuncs'
+import { ParseTimestamp, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseReset, ParseFallback, ParseCity, ParseTeam, ParseFreebuy, ParseMessage } from './currentparsefuncs'
 
 export function ParseTimestampedHumanReadable(event: any[], data: ParsedLog): JoinLeaveEvent | LoggingEvent | FreebuyEvent | (GenericTimestampedEvent & UnknownEvent) {
     if (!event[1].endsWith('--')) { return null }
@@ -139,4 +139,4 @@ export function ParseKillStandardized(event: any[]): KillEvent {
 
 export const legacyParseFuncs = [ParseJoinLeaveStandardized, ParseTimestampedHumanReadable, ParseLoggingStandardized]
 
-export const legacyFullParseFuncs = [ParseTimestampedHumanReadable, ParseJoinLeaveStandardized, ParseLoggingStandardized, ParseKillStandardized, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseCity, ParseTeam, ParseReset, ParseFreebuy, ParseFallback]
+export const legacyFullParseFuncs = [ParseTimestampedHumanReadable, ParseJoinLeaveStandardized, ParseLoggingStandardized, ParseKillStandardized, ParseDeath, ParseBuy, ParseBailout, ParseDestroy, ParseCity, ParseTeam, ParseReset, ParseFreebuy, ParseMessage, ParseFallback]
