@@ -137,7 +137,7 @@ export function ParseTeam(event: any[]): TeamEvent {
 
 export function ParseReset(event: any[]): ResetEvent {
     if (event[1] !== 'reset' && !event[1].startsWith('reset-')) { return null }
-    if (Number.isNaN(event[2])) {
+    if (!event[2]) {
         console.log(`${event[1]}  ${event[0]}`)
     }
     return {
@@ -164,18 +164,18 @@ export function ParseFreebuy(event: any[]): FreebuyEvent {
 
 export function ParseMessage(event: any[]): MessageEvent {
     if (event[1] !== 'message') { return null }
-    if (event[2]) {
+    if (event[3]) {
         return {
             ...ParseGenericTimestamped(event),
             category: 'message',
-            message: event[3],
-            player: event[2]
+            message: event[4],
+            player: event[3]
         }
     } else {
         return {
             ...ParseGenericTimestamped(event),
             category: 'message',
-            message: event[3]
+            message: event[4]
         }
     }
 }
