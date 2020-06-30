@@ -46,7 +46,7 @@ function initInputs() {
         logselect.add(new Option(`${date} ${time.replace('.', ':')} ${map} [${plys}]`, log));
 
         games.forEach(game => {
-            const gameOpt = new Option(`└ ${game.name}`, log)
+            const gameOpt = new Option(`\u00A0└ ${game.name}`, log)
             gameOpt.dataset.start = game.start
             gameOpt.dataset.end = game.end
             gameOpt.dataset.meta = game.meta
