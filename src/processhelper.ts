@@ -2,7 +2,6 @@ import type { GenericEvent, KillEvent, GenericPlayerEvent, GenericTransactionEve
 import './utilfuncs'
 import { isCategory, isType } from './util'
 import * as Util from './util'
-import * as Info from './metainfo'
 import Counter from './Counter'
 import MultiCounter from './MultiCounter'
 
@@ -22,7 +21,7 @@ export function stateTimelineSeries(players: Map<string, PlayerInfo>) {
                     start,
                     end
                 ],
-                fillColor: Info.getTeamColor(team, state === 'afk'),
+                fillColor: Util.getTeamColor(team, state === 'afk'),
                 state: state,
                 team: team.toLowerCase()
             })
@@ -96,6 +95,38 @@ export function weaponCounts(eventlist: GenericEvent[], player: string | null, i
         weapon: weapon,
         count: value
     })).sort((a,b) => a.weapon.localeCompare(b.weapon))
+}
+
+export function captureBreakdown(eventlist: GenericEvent[], endtime: number, team: string) {
+    const counts = new MultiCounter()
+
+    let lastPlayer: string = null
+    let lastTeamTime: number = null
+    let lastTime: number = null
+    for (const e of eventlist) {
+        if (isCategory(e, 'city') && e.team == team) {
+            if (e.type === 'city-take') {
+                counts.increment(e.player, 'count')
+                lastPlayer = e.player
+                lastTeamTime = e.teamtime
+                lastTime = e.time
+            } else if (e.type === 'city-lose') {
+                if (lastPlayer) {
+                    counts.increment(lastPlayer, 'time', e.teamtime - lastTeamTime)
+                    lastPlayer = null
+                }
+            }
+        }
+    }
+    if (lastPlayer) {
+        counts.increment(lastPlayer, 'time', endtime - lastTime)
+    }
+
+    return counts.map((player, value) => ({
+        player: player,
+        count: value.get('count'),
+        time: value.get('time')
+    }))
 }
 
 export function conflictBreakdown(eventlist: GenericEvent[], player: string) {

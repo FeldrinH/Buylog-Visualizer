@@ -513,12 +513,41 @@ export default class DashboardManager {
         }) */
  
         if (this.data.filteredlog.some(e => e.category === 'city')) {
+            // Pie charts for per-team capture stats
+            Charts.addChartSeries(document.querySelector("#capturebreakdown"), document.querySelector("#pietemplate"), ['Red', 'Blue'], (element, team) => {
+                const captureBreakdown = Helper.captureBreakdown(this.data.filteredlog, this.data.filteredend, team)
+
+                Charts.addPie(element.querySelector(".lefthalf"), {
+                    series: captureBreakdown.map(val => val.count),
+                    labels: captureBreakdown.map(val => val.player),
+                    colors: captureBreakdown.map(val => Util.getPlayerColor(val.player)),
+                    chart: {
+                        height: 310
+                    },
+                    title: {
+                        text: `${team} capture count`
+                    }
+                })
+
+                Charts.addPie(element.querySelector(".righthalf"), {
+                    series: captureBreakdown.map(val => Util.round(val.time, 1)),
+                    labels: captureBreakdown.map(val => val.player),
+                    colors: captureBreakdown.map(val => Util.getPlayerColor(val.player)),
+                    chart: {
+                        height: 310
+                    },
+                    title: {
+                        text: `${team} capture time`
+                    }
+                })
+            })
+
             Charts.addChart(document.querySelector("#teamtimes"), <any>{
-                series: ['Red', 'Blue'].map(team => ({
+                series: ['Red', 'Blue', 'Green'].map(team => ({
                     name: team,
                     data: Helper.cityTimeSeries(this.data.log, team)
                 })),
-                colors: ['#ff0000', '#0000ff'],
+                colors: ['#ff0000', '#0000ff', '#00ff00'],
                 /*series: this.playerlist.map(player => ({
                     name: player,
                     data: Helpers.countMovingAverage(this.filteredlog, player, this.getValidStart(), this.getValidEnd(), 600, 60)

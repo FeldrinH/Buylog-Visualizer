@@ -14,6 +14,69 @@ export const palette = [
     '#27d0df', '#a04a9b'
 ]
 
+const playerinfo = {
+    "FeldrinH": {
+        "color": "#ffc107"
+    },
+    "Atamer": {
+        "color": "#1e88e5"
+    },
+    "kräk": {
+        "color": "#c62828"
+    },
+    "i kill you": {
+        "color": "#8338ec"
+    },
+    "nii suva": {
+        "color": "#8338ec"
+    },
+    "AGoodUplayRater": {
+        "color": "#43a047",
+        "name": "AGoodUpl..."
+    },
+    "Willy": {
+        "color": "#673ab7"
+    },
+    "Wyolop": {
+        "color": "#ff5722"
+    },
+    "SignalBit": {
+        "color": "#ffeb3b"
+    },
+    "Napoléon": {
+        "color": "#212121"
+    },
+    "Külvot": {
+        "color": "#795548"
+    },
+    "martin1950": {
+        "color": "#f15bb5"
+    }
+}
+
+const teaminfo = {
+    Red: {
+        colorFull: "#ff0000",
+        colorLight: "#ffaaaa"
+    },
+    Blue: {
+        colorFull: "#0000ff",
+        colorLight: "#aaaaff"
+    },
+    Green: {
+        colorFull: "#00ff00",
+        colorLight: "#aaffaa"
+    },
+    Wildcard: {
+        colorFull: "#000000",
+        colorLight: "#aaaaaa"
+    },
+    Unassigned: {
+        colorFull: "#656775",
+        colorLight: "#AEB0BF"
+    }
+}
+
 /*export function assume<T extends GenericEvent>(value: GenericEvent): value is T {
     return true
 }*/
@@ -23,6 +86,7 @@ export function isType<T extends BuyEvent>(event: GenericEvent, type: 'buy-weapo
 export function isType<T extends DeathEvent>(event: GenericEvent, type: 'death'): event is T;
 export function isType<T extends DestroyEvent>(event: GenericEvent, type: 'destroy'): event is T;
 export function isType<T extends BailoutEvent>(event: GenericEvent, type: 'bailout' | 'bailout-start'): event is T;
+export function isType<T extends CityEvent>(event: GenericEvent, type: 'city-take' | 'city-lose'): event is T;
 export function isType<T extends TeamEvent>(event: GenericEvent, type: 'team-join'): event is T;
 export function isType<T extends JoinLeaveEvent>(event: GenericEvent, type: 'join' | 'leave' | 'afk-enter' | 'afk-leave'): event is T;
 export function isType<T extends LoggingEvent>(event: GenericEvent, type: 'logging-started' | 'logging-ended'): event is T;
@@ -157,4 +221,24 @@ export function getLoopingPaletteGenerator() {
         index += 1
         return ret
     }
+}
+
+export function getPlayerColor(id: string): string {
+    if (playerinfo[id]) {
+        return playerinfo[id].color
+    }
+    console.log(`Requested color for unknown player ${id}!`)
+    return '#000'
+}
+
+export function getPlayerName(id: string): string {
+    if (playerinfo[id]) {
+        return playerinfo[id].name || id
+    }
+    console.log(`Requested name for unknown player ${id}!`)
+    return id
+}
+
+export function getTeamColor(id: string, lighten: boolean): string {
+    return lighten ? teaminfo[id].colorLight : teaminfo[id].colorFull
 }
