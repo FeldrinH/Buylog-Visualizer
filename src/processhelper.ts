@@ -202,6 +202,7 @@ export function killsBreakdown(eventlist: GenericEvent[], playerlist: string[]) 
             kills: kills,
             deaths: deaths,
             kdr: Util.round(kills / deaths, 2),
+            //smoothedkrd: Util.round((kills + 10) / (deaths + 10), 2),
             killstreak: killstreak,
             deathstreak: deathstreak,
             moneyspent: moneyspent,

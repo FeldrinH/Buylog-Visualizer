@@ -242,6 +242,13 @@ export default class DashboardManager {
                         y: val.kdr
                     }))
                 }
+                /*{
+                    name: 'Bayesian KDR',
+                    data: killsBreakdown.map(val => ({
+                        x: val.player,
+                        y: val.smoothedkrd
+                    }))
+                }*/
             ],
             title: {
                 text: 'Kill to death ratio'
