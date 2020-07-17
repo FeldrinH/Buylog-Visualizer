@@ -67,6 +67,10 @@ const teaminfo = {
         colorFull: "#00ff00",
         colorLight: "#aaffaa"
     },
+    Yellow: {
+        colorFull: "#ffff00",
+        colorLight: "#ffffaa"
+    },
     Wildcard: {
         colorFull: "#000000",
         colorLight: "#aaaaaa"

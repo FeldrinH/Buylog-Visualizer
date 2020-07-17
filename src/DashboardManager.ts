@@ -514,7 +514,7 @@ export default class DashboardManager {
  
         if (this.data.filteredlog.some(e => e.category === 'city')) {
             // Pie charts for per-team capture stats
-            Charts.addChartSeries(document.querySelector("#capturebreakdown"), document.querySelector("#pietemplate"), ['Red', 'Blue'], (element, team) => {
+            Charts.addChartSeries(document.querySelector("#capturebreakdown"), document.querySelector("#pietemplate"), ['Red', 'Blue', 'Green', 'Yellow'], (element, team) => {
                 const captureBreakdown = Helper.captureBreakdown(this.data.filteredlog, this.data.filteredend, team)
 
                 Charts.addPie(element.querySelector(".lefthalf"), {
@@ -543,11 +543,11 @@ export default class DashboardManager {
             })
 
             Charts.addChart(document.querySelector("#teamtimes"), <any>{
-                series: ['Red', 'Blue', 'Green'].map(team => ({
+                series: ['Red', 'Blue', 'Green', 'Yellow'].map(team => ({
                     name: team,
                     data: Helper.cityTimeSeries(this.data.log, team)
                 })),
-                colors: ['#ff0000', '#0000ff', '#00ff00'],
+                colors: ['#ff0000', '#0000ff', '#00ff00', '#ffff00'],
                 /*series: this.playerlist.map(player => ({
                     name: player,
                     data: Helpers.countMovingAverage(this.filteredlog, player, this.getValidStart(), this.getValidEnd(), 600, 60)
