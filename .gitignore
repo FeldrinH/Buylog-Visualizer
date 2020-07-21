@@ -5,3 +5,4 @@ logcounts.js
 stats.json
 node_modules
 *.tsv
+*.tsbuildinfo
