@@ -8,7 +8,7 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "sourceMap": true,
-        "incremental": true
+        "incremental": false
     },
     "include": [
         "src/**/*"

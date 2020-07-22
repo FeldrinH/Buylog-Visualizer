@@ -144,6 +144,10 @@ export function formatDuration(duration: Duration) {
     return `${hours > 0 ? `${hours} hour${hours === 1 ? '' : 's'}` : ''} ${minutes} minutes`
 }
 
+export function shorten(str: string, length: number) {
+    return str.length <= length + 2 ? str : `${str.substr(0, length)}...`
+}
+
 // isObject() and extend() taken from ApexCharts /utils/Utils.js (https://github.com/apexcharts/apexcharts.js/blob/master/src/utils/Utils.js) and optimized for a more restricted use case
 
 function isObject(item: any) {

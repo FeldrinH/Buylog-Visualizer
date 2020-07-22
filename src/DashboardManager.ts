@@ -207,14 +207,14 @@ export default class DashboardManager {
                 {
                     name: 'Kills',
                     data: killsBreakdown.map(val => ({
-                        x: val.player,
+                        x: Util.shorten(val.player, 12),
                         y: val.kills
                     }))
                 },
                 {
                     name: 'Deaths',
                     data: killsBreakdown.map(val => ({
-                        x: val.player,
+                        x: Util.shorten(val.player, 12),
                         y: val.deaths
                     }))
                 }
@@ -436,7 +436,7 @@ export default class DashboardManager {
                     height: 310
                 },
                 title: {
-                    text: `${player} purchases`
+                    text: `${Util.shorten(player, 21)} purchases`
                 }
             })
 
@@ -448,7 +448,7 @@ export default class DashboardManager {
                     height: 310
                 },
                 title: {
-                    text: `${player} kills`
+                    text: `${Util.shorten(player, 21)} kills`
                 }
             })
         })
@@ -458,7 +458,7 @@ export default class DashboardManager {
                 series: [{
                     name: 'Win %',
                     data: Helper.conflictBreakdown(this.data.filteredlog, player).map(info => ({
-                        x: info.opponent,
+                        x: Util.shorten(info.opponent, 12),
                         y: info.percent
                     }))
                 }],
@@ -467,7 +467,7 @@ export default class DashboardManager {
                     type: 'radar'
                 },
                 title: {
-                    text: player,
+                    text: `${Util.shorten(player, 21)} matchups`,
                     align: 'center'
                 },
                 yaxis: {
