@@ -579,6 +579,9 @@ export default class DashboardManager {
                         borderColor: '#00cc00'
                     }]
                 },
+                yaxis: {
+                    max: this.meta.cityend && (this.meta.cityend + 100) || undefined
+                },
                 xaxis: {
                     type: 'numeric',
                     min: this.data.filteredstart,
