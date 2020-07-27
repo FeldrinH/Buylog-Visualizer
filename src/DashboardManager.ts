@@ -149,6 +149,7 @@ export default class DashboardManager {
 
         const [ date, time, mapstr ] = this.filename.split('-')
         const [ map ] = mapstr.split('.')
+        Charts.addKeyValueText(textroot, textemplate, "Log start:", `${date} ${time}`)
         Charts.addKeyValueText(textroot, textemplate, "Map:", map)
         if (!this.data.filtered) {
             Charts.addKeyValueText(textroot, textemplate, "Start time:", this.data.starttimestamp.format('dddd, MMMM Do YYYY, HH:mm'))
